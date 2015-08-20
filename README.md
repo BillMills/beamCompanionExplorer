@@ -13,6 +13,6 @@ This project will extend and modernize [the original CSB Assistant](http://trsha
 
 ## Contributing
 
-We're currently in a spool-up phase, and would like to hear from you! The best thing to do right now is to **check out the [planning milestone](https://github.com/GRIFFINCollaboration/chargeStateBooster/milestones/Planning%20Discussions), and comment on any of the issues** you find there. If you have other ideas that don't fit into one of those threads, please feel free to open a new one on anything you like!
+We're currently in a spool-up phase, and would like to hear from you! The best thing to do right now is to **check out the [planning milestone](https://github.com/GRIFFINCollaboration/beamCompanionExplorer/milestones/Planning%20Discussions), and comment on any of the issues** you find there. If you have other ideas that don't fit into one of those threads, please feel free to open a new one on anything you like!
 
 In order to see what our projected timeline looks like, check out the [Roadmap](https://github.com/GRIFFINCollaboration/beamCompanionExplorer/issues/4).
