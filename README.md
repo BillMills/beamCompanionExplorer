@@ -5,7 +5,7 @@ A web app for exploring and visualizing beam companions picked up during charge 
 
 The Charge-State Booster (CSB) is intended to produce radioactive ion beams in charge states greater than 1+. Stable isotopes are also ionized and produced by this device so must be considered when selecting which beam to extract. This tool may help identify which charge-state might be the cleanest when designing experimental proposals.
 
-This project will extend and modernize [the original CSB Assistant](http://trshare.triumf.ca/~garns/CSB/) by @AdamGarnsworthy. Goals include but are not limited to:
+This project will extend and modernize [the original CSB Assistant](http://trshare.triumf.ca/~garns/CSB/) by [**@AdamGarnsworthy**](https://github.com/AdamGarnsworthy). Goals include but are not limited to:
 
  - port to JavaScript (+other server side stack?)
  - make use of url encoding for linkable, shareable results
