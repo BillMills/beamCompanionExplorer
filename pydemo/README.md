@@ -6,6 +6,8 @@ Here's a very simple demo using python & flask to achieve the engineering goals 
 
 `sudo pip install flask`
 
+If you don't have pip installed, first install it with 'sudo easy_install pip'
+
 ### usage:
 
  - run `python app.py`
