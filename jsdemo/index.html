@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <script src='https://raw.githubusercontent.com/janl/mustache.js/master/mustache.js' type="text/javascript"></script>
+
+        <!--Templates-->
+        <script id="firstCompanion" type="text/template">
+            <tr>
+                <td>Species: {{species}}-{{A}}</td>
+                <td>Charge State: {{i}}</td>
+                <td>A/Q: 0</td>
+                <td>Possible Companions:</td>
+                <td>Transmission Current:</td>
+            </tr>
+        </script>
+
+    </head>
+
+    <body>
+        <table id='test'>
+            
+        </table>
+
+        <script type="text/javascript">
+            var i, data, html, hashParams, template;
+
+            template = document.getElementById('firstCompanion').innerHTML;
+            hashParams = parseHash();
+
+            // client side 'router' logic: decide which templates to render based on hash
+            if(hashParams.length == 2){
+                for(i=0; i<7; i++){
+                    data = {
+                        species: hashParams[0],
+                        A: hashParams[1],
+                        i: i
+                    }
+                    html = Mustache.to_html(template, data);
+                    document.getElementById('test').innerHTML += html;
+                }
+            } else {
+                document.getElementById('test').innerHTML = 'bad hash'
+            }
+
+            function parseHash(){
+                var elts, hash;
+
+                hash = window.location.hash;
+                hash = hash.slice(1,hash.length)
+
+                if(hash){
+                    elts = hash.split('&')
+                } else
+                    elts = []
+
+                return elts
+            }
+        </script>
+    </body>
+</html>
