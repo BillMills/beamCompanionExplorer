@@ -1,0 +1,6 @@
+<table>
+    {{#each datastore.chargeStates as |cs|}}
+        {{#first-cut species=model.species A=model.A chargeState=cs }}
+        {{/first-cut}}
+    {{/each}}
+</table>
