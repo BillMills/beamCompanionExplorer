@@ -10,7 +10,7 @@ function ulAuxilaryData(route, data){
 	}
 
 	if(route == "{{species}}/{{A}}"){
-		return {'chargeStates': [species2z['He'],chemCase('he'),3]}
+		return {'chargeStates': [species2z('He'),chemCase('he'),3]}
 	}
 	return {}
 }
