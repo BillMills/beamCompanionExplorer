@@ -1,5 +1,5 @@
 function ulAuxilaryData(route, data){
-
+	// determine charge states, A/Q values, companions and plots from A and Z.
 	var url, path, i, chargeStates;
 
 	//extract the base URL where this page is found.
@@ -9,6 +9,7 @@ function ulAuxilaryData(route, data){
 		url += path[i] + '/'
 	}
 
+	//determine what charge states can be accelerated, and the corresponding A/Q
 	chargeStates = validChargeStates(parseInt(data.A), species2z(data.species) );
 
 	if(route == "{{species}}/{{A}}"){
@@ -35,16 +36,16 @@ function chemCase(word){
 function validChargeStates(A, Z){
 	// determine valid charge states.
 
-	var i, criteria, chargeStates,
+	var i, massToCharge, chargeStates,
 		beamMass = dataStore.masses[Z][''+A];
 	
 	chargeStates = [];
 
 	for(i=1; i<=Z; i++){
-		criteria = (beamMass - i*dataStore.eMass)/i;
+		massToCharge = (beamMass - i*dataStore.eMass)/i;
 	
-		if( (criteria > 4.9) && (criteria <= 7) ){
-			chargeStates[chargeStates.length] = i;
+		if( (massToCharge > 4.9) && (massToCharge <= 7) ){
+			chargeStates[chargeStates.length] = {"q":i, "aOverQ":massToCharge.toFixed(3)};
 		}
 	}
 
