@@ -14,3 +14,7 @@ function ulAuxilaryData(route, data){
 	}
 	return {}
 }
+
+function ulCallback(){
+	document.getElementById('fig50K3').innerHTML = 'test'
+}
