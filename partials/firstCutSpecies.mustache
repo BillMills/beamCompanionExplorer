@@ -5,6 +5,31 @@
 	<li>
 		<p>A/Q:</p><p id='aq{{A}}{{species}}{{q}}'>{{aOverQ}}</p>
 	</li>
+
+	<li>
+		<p>CSB Product Companions</p>
+		<p id='csbCompanions{{A}}{{species}}{{q}}'>
+			{{#csbCompanions}}
+				<sup>{{compA}}</sup>
+				{{compSpecies}}
+				<sup>{{compQ}}+</sup>
+				{{compAoverQ}}
+			{{/csbCompanions}}
+		</p>
+	</li>
+
+	<li>
+		<p>Other Companions</p>
+		<p id='otherCompanions{{A}}{{species}}{{q}}'>
+			{{#otherCompanions}}
+				<sup>{{compA}}</sup>
+				{{compSpecies}}
+				<sup>{{compQ}}+</sup>
+				{{compAoverQ}}
+			{{/otherCompanions}}
+		</p>
+	</li>
+
 	<li>
 		<div id='fig{{A}}{{species}}{{q}}'></div>
 	</li>
