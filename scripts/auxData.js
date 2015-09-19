@@ -150,10 +150,9 @@ function determineIntensityParameters(beamMass, chargeState, A, species){
 function drawAQvsIntensity(divID){
 	//
 
-	var g,
-		data = dataStore.plotData[divID];
+	var data = dataStore.plotData[divID];
 
-	g = new Dygraph(
+	dataStore.plots[divID] = new Dygraph(
 	    // containing div
 	    document.getElementById('fig'+divID),
 
@@ -167,7 +166,6 @@ function drawAQvsIntensity(divID){
 	    	drawPoints: true,
 	    	xlabel: 'A/Q',
 	    	ylabel: 'Intensity (A)',
-	    	yAxisLabelWidth: 100,
 	 		xRangePad: 10,
 	    	logscale: true,
 	    	pointSize: 3,
@@ -177,7 +175,8 @@ function drawAQvsIntensity(divID){
 
 	    		},
 	    		y:{
-	    			valueRange:[data.yMin, data.yMax]
+	    			valueRange:[data.yMin, data.yMax],
+	    			axisLabelWidth: 100
 	    		}
 	    	},
 	    	//draw shaded magnet region
@@ -197,12 +196,10 @@ function drawAQvsIntensity(divID){
 
 				highlight_period(data.magLow,data.magHigh);            
             }
-
 	    }
-
 	);
 
-	prepImageSave(g, divID);
+	prepImageSave(divID)
 }
 
 //=================================
@@ -219,6 +216,61 @@ function ulCallback(){
 
 
 	return 0
+}
+
+// =========================
+// plot to png wrangling
+// =========================
+
+function savePlot(id){
+	//Somewhat convoluted exercise to make dygraphs saveable as png...
+
+	var link = document.getElementById('savePlot'+id)
+
+	link.href = getBase64Image(document.getElementById('pngDump'+id));
+	link.click();
+
+}
+
+//generate a hidden image and send its data uri to the appropriate place for saving:
+function prepImageSave(id){
+	var dygraph = dataStore.plots[id];
+
+	var options = {
+	    //Texts displayed below the chart's x-axis and to the left of the y-axis 
+	    titleFont: "bold 30px sans-serif",
+	    titleFontColor: "black",
+
+	    //Texts displayed below the chart's x-axis and to the left of the y-axis 
+	    axisLabelFont: "bold 24px sans-serif",
+	    axisLabelFontColor: "black",
+
+	    // Texts for the axis ticks
+	    labelFont: "normal 18px sans-serif",
+	    labelFontColor: "black",
+
+	    // Text for the chart legend
+	    legendFont: "bold 18px sans-serif",
+	    legendFontColor: "black",
+
+	    legendHeight: 0    // suppress legend
+	};
+
+	Dygraph.Export.asPNG(dygraph, document.getElementById('pngDump'+id), options);
+}
+
+function getBase64Image(img) {
+
+    // Create an empty canvas element
+    var canvas = document.createElement("canvas");
+    canvas.width = img.width;
+    canvas.height = img.height;
+
+    // Copy the image contents to the canvas
+    var ctx = canvas.getContext("2d");
+    ctx.drawImage(img, 0, 0);
+
+    return canvas.toDataURL();
 }
 
 // =========================
@@ -248,48 +300,6 @@ function arrangePoints(x, y){
 	return data;
 }
 
-//generate a hidden image and send its data uri to the appropriate place for saving:
-function prepImageSave(dygraph, id){
-	var options = {
-	    //Texts displayed below the chart's x-axis and to the left of the y-axis 
-	    titleFont: "bold 30px sans-serif",
-	    titleFontColor: "black",
-
-	    //Texts displayed below the chart's x-axis and to the left of the y-axis 
-	    axisLabelFont: "bold 24px sans-serif",
-	    axisLabelFontColor: "black",
-
-	    // Texts for the axis ticks
-	    labelFont: "normal 18px sans-serif",
-	    labelFontColor: "black",
-
-	    // Text for the chart legend
-	    legendFont: "bold 18px sans-serif",
-	    legendFontColor: "black",
-
-	    legendHeight: 0    // suppress legend
-	};
-
-	Dygraph.Export.asPNG(dygraph, document.getElementById('pngDump'+id), options);
-	document.getElementById('savePlot'+id).href = getBase64Image(document.getElementById('pngDump'+id));
-}
-
-function getBase64Image(img) {
-
-    // Create an empty canvas element
-    var canvas = document.createElement("canvas");
-    canvas.width = img.width;
-    canvas.height = img.height;
-
-    // Copy the image contents to the canvas
-    var ctx = canvas.getContext("2d");
-    ctx.drawImage(img, 0, 0);
-
-    var dataURL = canvas.toDataURL("image/png");
-
-    return dataURL;
-}
-
 //=======================================
 //global dataStore for interesting facts
 //=======================================
@@ -297,7 +307,8 @@ dataStore = {}
 dataStore.eMass = 0.0005485799; // AMU
 dataStore.magentResolution = 100; //inverse of resolving power of magnet immediately following CSB
 dataStore.liner = 'aluminium'
-dataStore.plotData = {}
+dataStore.plotData = {};
+dataStore.plots = {};
 
 // Z of contaminant species living in the CSB liners
 dataStore.linerSpecies = {
