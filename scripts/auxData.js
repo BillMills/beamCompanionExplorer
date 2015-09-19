@@ -201,6 +201,8 @@ function drawAQvsIntensity(divID){
 	    }
 
 	);
+
+	prepImageSave(g, divID);
 }
 
 //=================================
@@ -244,6 +246,48 @@ function arrangePoints(x, y){
 	}
 
 	return data;
+}
+
+//generate a hidden image and send its data uri to the appropriate place for saving:
+function prepImageSave(dygraph, id){
+	var options = {
+	    //Texts displayed below the chart's x-axis and to the left of the y-axis 
+	    titleFont: "bold 30px sans-serif",
+	    titleFontColor: "black",
+
+	    //Texts displayed below the chart's x-axis and to the left of the y-axis 
+	    axisLabelFont: "bold 24px sans-serif",
+	    axisLabelFontColor: "black",
+
+	    // Texts for the axis ticks
+	    labelFont: "normal 18px sans-serif",
+	    labelFontColor: "black",
+
+	    // Text for the chart legend
+	    legendFont: "bold 18px sans-serif",
+	    legendFontColor: "black",
+
+	    legendHeight: 0    // suppress legend
+	};
+
+	Dygraph.Export.asPNG(dygraph, document.getElementById('pngDump'+id), options);
+	document.getElementById('savePlot'+id).href = getBase64Image(document.getElementById('pngDump'+id));
+}
+
+function getBase64Image(img) {
+
+    // Create an empty canvas element
+    var canvas = document.createElement("canvas");
+    canvas.width = img.width;
+    canvas.height = img.height;
+
+    // Copy the image contents to the canvas
+    var ctx = canvas.getContext("2d");
+    ctx.drawImage(img, 0, 0);
+
+    var dataURL = canvas.toDataURL("image/png");
+
+    return dataURL;
 }
 
 //=======================================
