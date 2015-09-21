@@ -66,8 +66,8 @@ function listCompanions(beamQ, beamMass){
 		for(j=1; j<dataStore.stableZ[i]; j++){
 			massToCharge = (mass - j*dataStore.eMass)/j;
 
-			if( (massToCharge > beamMassToCharge*(1-0.5/dataStore.magentResolution)) &&
-				(massToCharge < beamMassToCharge*(1+0.5/dataStore.magentResolution))) {
+			if( (massToCharge > beamMassToCharge*(1-0.5/dataStore.magnetResolution)) &&
+				(massToCharge < beamMassToCharge*(1+0.5/dataStore.magnetResolution))) {
 
 				csbFlag = false;
 				if(dataStore.linerSpecies[dataStore.liner].indexOf(dataStore.stableZ[i]) != -1){
@@ -101,8 +101,8 @@ function determineIntensityParameters(beamMass, chargeState, A, species){
 		magLow, magHigh;										//magnet acceptance
 
 	AQ = (beamMass - chargeState*dataStore.eMass) / chargeState;
-	AQmin = AQ*(1 - 1 / dataStore.magentResolution);
-	AQmax = AQ*(1 + 1 / dataStore.magentResolution);
+	AQmin = AQ*(1 - 1 / dataStore.magnetResolution);
+	AQmax = AQ*(1 + 1 / dataStore.magnetResolution);
 	intensityMin = 1e-6;
 	intensityMax = 1e-13;
 	idxIntensityMin = -1;
@@ -130,8 +130,8 @@ function determineIntensityParameters(beamMass, chargeState, A, species){
 	}
 
 	//determine magnet acceptance region
-	magLow  = AQ*(1 - 0.5 / dataStore.magentResolution);
-	magHigh = AQ*(1 + 0.5 / dataStore.magentResolution);
+	magLow  = AQ*(1 - 0.5 / dataStore.magnetResolution);
+	magHigh = AQ*(1 + 0.5 / dataStore.magnetResolution);
 
 	//log data for consumption by dygraphs later
 	dataStore.plotData[A+species+chargeState] = {

@@ -4,44 +4,38 @@
 
 function ulAuxilaryData(route, data){
 
-	var A, Z, qOriginal, chargeStates;
+	var A, Z, qOriginal, chargeStates, beamMass, i, companions, beamAQ;
 
 	A = parseInt(data.A);
 	Z = species2z(data.species);
 	qOriginal = parseInt(data.qOriginal);
+	beamMass = dataStore.masses[Z][''+A];
+	beamAQ = determineAQ(beamMass, qOriginal);
 
-	//determine charge states and corresponding A/Q
-	chargeStates = beamChargeStates(Z, A, qOriginal);
+	chargeStates = beamChargeStates(Z, beamMass, qOriginal);
 
-
-	// // determine charge states, A/Q values, companions and plots from A and Z.
-	// var url, path, i, A, Z, beamMass, chargeStates, companions;
-
-	// A = parseInt(data.A);
-	// Z = species2z(data.species);
-	// beamMass = dataStore.masses[Z][''+A];
-
-	// //determine what charge states can be accelerated, and the corresponding A/Q
-	// chargeStates = validChargeStates(Z, beamMass);
-	// //for every accepted charge state, generate both lists of companions and append to the corresponding object,
-	// //and generate information needed for plots
-	// for(i=0; i<chargeStates.length; i++){
-	// 	companions = listCompanions(chargeStates[i].q, beamMass)
-	// 	chargeStates[i]['csbCompanions'] = companions[0];
-	// 	chargeStates[i]['otherCompanions'] = companions[1];
-	// 	determineIntensityParameters(beamMass, chargeStates[i].q, A, data.species )
-	// }
+	//for every accepted charge state, generate both lists of companions and append to the corresponding object,
+	//and generate information needed for plots
+	for(i=0; i<chargeStates.length; i++){
+		companions = listCompanions(chargeStates[i].q, beamMass, beamAQ)
+		chargeStates[i]['csbCompanions'] = companions[0];
+		chargeStates[i]['otherCompanions'] = companions[1];
+	}
 
 	if(route == "{{species}}/{{A}}/{{qOriginal}}"){
-		return {'chargeStates': chargeStates }
+		return {
+			'chargeStates': chargeStates,
+			'AQoriginal': ((beamMass - qOriginal*dataStore.eMass)/qOriginal).toFixed(3)
+		}
 	}
 	return {}
 }
 
-function beamChargeStates(Z, A, qOriginal){
-	//determine charge states for beam of Z and A, originally filtered for charge state qOriginal
+function beamChargeStates(Z, beamMass, qOriginal){
+	//determine charge states and corresponding charge fractions, A/Q 
+	//for beam of Z and A, originally filtered for charge state qOriginal
 
-	var i, x, s, beamEnergy, meanQ, 
+	var i, x, s, beamEnergy, meanQ, qFraction, AQ,
 		chargeStates = [];
 
 	beamEnergy = 1.5;
@@ -50,9 +44,17 @@ function beamChargeStates(Z, A, qOriginal){
 	s = 0.5*Math.pow( (meanQ*(1-Math.pow( (meanQ/Z), (1/0.6)))), 0.5); // for Z>20 <-- what about Z <=20?
 
 	for(i=qOriginal; i<=Z; i++){
+		qFraction = chargeFraction(i, s, meanQ)
+		if(i>qOriginal && qFraction<0.5) continue;
 
-		if(i>qOriginal && chargeFraction(i, s, meanQ)<0.5) continue;
-		chargeStates.push({'q': i});
+		AQ = determineAQ(beamMass, i)
+
+		chargeStates.push(
+			{
+				'q': i,
+				'chargeFraction': qFraction.toFixed(1),
+				'AQ': AQ.toFixed(3)
+			});
 	}
 
 	return chargeStates
@@ -86,7 +88,96 @@ function chargeFraction(q, s, meanQ){
   	return fraction;
 }
 
+function listCompanions(beamQ, beamMass, beamAQ){
+	//generate two lists: one of likely companions, and one of possible companions.
 
+	var csbCompanions, otherCompanions,
+		thisAQ, thisMass, csbFlag, data,
+		stables, i, j;
+
+	csbCompanions = [];
+	otherCompanions = [];
+
+	stables = stableCompanions(beamQ, beamMass)
+
+	for(i=0; i<stables.Z.length; i++){
+		thisMass = dataStore.masses[stables.Z[i]][''+stables.A[i]];
+
+		for(j=1; j<stables.Z[i]; j++){
+			thisAQ = determineAQ(thisMass, j);
+
+			if( thisAQ > (beamAQ-(beamAQ*(0.5/25))) && thisAQ < (beamAQ+(beamAQ*(0.5/25))) && aqPreCheck(stables.A[i], stables.Z[i], beamMass, beamQ) ){
+
+				//is this background coming from the CSB?
+				csbFlag = false;
+				if(dataStore.linerSpecies[dataStore.liner].indexOf(stables.Z[i]) != -1){
+					csbFlag = true;
+				}
+
+				data = {
+					'compA': stables.A[i],
+					'compSpecies': dataStore.elements[stables.Z[i]],
+					'compQ': j,
+					'compAoverQ': thisAQ.toFixed(3)
+				}
+
+				if(csbFlag)
+					csbCompanions.push(data);
+				else
+					otherCompanions.push(data);
+			}
+		}
+	}
+	return [csbCompanions, otherCompanions];
+}
+
+function stableCompanions(beamQ, beamMass){
+	//find lists of stable companions
+
+	var i, j, mass, massToCharge,
+		stableA, stableZ, stableQ,
+		beamMassToCharge = (beamMass - beamQ*dataStore.eMass)/beamQ;
+
+	stableA = [];
+	stableZ = [];
+	stableQ = [];
+
+	for(i=0; i<dataStore.stableZ.length; i++){
+		mass = dataStore.masses[dataStore.stableZ[i]][''+dataStore.stableA[i]]
+		for(j=1; j<dataStore.stableZ[i]; j++){
+			massToCharge = (mass - j*dataStore.eMass)/j;
+
+			if( (massToCharge > beamMassToCharge*(1-0.5/dataStore.magnetResolution)) &&
+				(massToCharge < beamMassToCharge*(1+0.5/dataStore.magnetResolution))) {
+
+				stableA.push(dataStore.stableA[i]);
+				stableZ.push(dataStore.stableZ[i]);
+				stableQ.push(j)
+			}
+		}
+	}
+
+	return {"A": stableA, "Z": stableZ, "Q": stableQ}
+}
+
+function aqPreCheck(A, Z, beamMass, beamQ){
+	//A/Q test pre-check
+
+	var mass, thisAQ, beamAQ,
+		i,
+		passed = false;
+
+	mass = dataStore.masses[Z][''+A];
+	beamAQ = (beamMass - dataStore.eMass*beamQ) / beamQ;
+
+	for(i=1; i<Z; i++){
+		thisAQ = (mass - i*dataStore.eMass)/i;
+		passed = passed || (thisAQ > beamAQ - beamAQ*(0.5/dataStore.magnetResolution)) && (thisAQ < beamAQ + beamAQ*(0.5/dataStore.magnetResolution))
+	}
+
+	return passed;
+
+}
 
 function ulCallback(){
 	//runs after ultralight is finished setting up the page.

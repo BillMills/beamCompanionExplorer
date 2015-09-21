@@ -79,3 +79,20 @@ function arrangePoints(x, y){
 
 	return data;
 }
+
+// ==================
+// physics
+// ==================
+
+function determineAQ(mass, Q){
+
+	var AQ;
+
+	if(dataStore.energyLoss > 0){
+		AQ = (mass-Q*dataStore.eMass)/Q * Math.sqrt(1.0-(dataStore.energyLoss/100)) ;
+	} else{
+		AQ = (mass-Q*dataStore.eMass)/Q;
+	}
+
+	return AQ
+}

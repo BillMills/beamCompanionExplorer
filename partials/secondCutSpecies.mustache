@@ -4,14 +4,34 @@
 	</li>
 	<li>
 		<ul>
-			<li>%</li>
+			<li>{{chargeFraction}}%</li>
 			<li>This A/Q: {{AQ}}</li>
 			<li>First A/Q: {{AQoriginal}}</li>
 			<li><sup>{{A}}</sup>{{species}}<sup>{{qOriginal}}+</sup></li>
 		</ul>
 	</li>
 	<li>
-		<p>Possible Compaions:</p>
+		<p>CSB Product Companions</p>
+		<p id='csbCompanions{{A}}{{species}}{{q}}'>
+			{{#csbCompanions}}
+				<sup>{{compA}}</sup>
+				{{compSpecies}}
+				<sup>{{compQ}}+</sup>
+				{{compAoverQ}}
+			{{/csbCompanions}}
+		</p>
+	</li>
+
+	<li>
+		<p>Other Companions</p>
+		<p id='otherCompanions{{A}}{{species}}{{q}}'>
+			{{#otherCompanions}}
+				<sup>{{compA}}</sup>
+				{{compSpecies}}
+				<sup>{{compQ}}+</sup>
+				{{compAoverQ}}
+			{{/otherCompanions}}
+		</p>
 	</li>
 	<li>
 		<p>Acceptance</p>
