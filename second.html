@@ -5,20 +5,20 @@
     	<script src='scripts/ultralight.js' type="text/javascript"></script>
     	<script src='scripts/dygraphs.1.1.1.min.js' type="text/javascript"></script>
     	<script src='scripts/dygraphs-extra.js' type="text/javascript"></script>
-    	<script src='scripts/first.js' type="text/javascript"></script>
+    	<script src='scripts/second.js' type="text/javascript"></script>
         <script src='scripts/helpers.js' type="text/javascript"></script>
         <script src='scripts/datastore.js' type="text/javascript"></script>
     	<link rel="stylesheet" type="text/css" href="custom.css" />
 
-        <script id="body" type="text/template" route="{{species}}/{{A}}">
+        <script id="body" type="text/template" route="{{species}}/{{A}}/{{qOriginal}}">
         	<h1>Beam Companion Explorer</h1>
-        	{{#chargeStates}}
-        		{{> firstCutSpecies}}
-        	{{/chargeStates}}
+            {{#chargeStates}}
+                {{> secondCutSpecies}}
+            {{/chargeStates}}
         </script>
 
     	<script type='text/javascript'>
-	    	ul = new ultralight(['firstCutSpecies'])
+	    	ul = new ultralight(['secondCutSpecies'])
 	    </script>
     </head>
 </html>
