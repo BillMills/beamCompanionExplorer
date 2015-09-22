@@ -4,22 +4,23 @@
 
 function ulAuxilaryData(route, data){
 
-	var A, Z, qOriginal, chargeStates, beamMass, i, companions, beamAQ;
+	var A, Z, qOriginal, chargeStates, beamMass, i, companions;
 
 	A = parseInt(data.A);
 	Z = species2z(data.species);
 	qOriginal = parseInt(data.qOriginal);
 	beamMass = dataStore.masses[Z][''+A];
-	beamAQ = determineAQ(beamMass, qOriginal);
 
+	//what other charge states of the beam species are going to show up, in addition to the original selected?
 	chargeStates = beamChargeStates(Z, beamMass, qOriginal);
 
 	//for every accepted charge state, generate both lists of companions and append to the corresponding object,
 	//and generate information needed for plots
 	for(i=0; i<chargeStates.length; i++){
-		companions = listCompanions(chargeStates[i].q, beamMass, beamAQ)
+		companions = listCompanions(qOriginal, beamMass, chargeStates[i].q);
 		chargeStates[i]['csbCompanions'] = companions[0];
 		chargeStates[i]['otherCompanions'] = companions[1];
+		determinePlotParameters(chargeStates[i].q, A, data.species, companions[0])
 	}
 
 	if(route == "{{species}}/{{A}}/{{qOriginal}}"){
@@ -88,16 +89,18 @@ function chargeFraction(q, s, meanQ){
   	return fraction;
 }
 
-function listCompanions(beamQ, beamMass, beamAQ){
+function listCompanions(beamQ, beamMass, chargeState){
 	//generate two lists: one of likely companions, and one of possible companions.
 
 	var csbCompanions, otherCompanions,
-		thisAQ, thisMass, csbFlag, data,
+		thisAQ, thisMass, csbFlag, data, beamAQ,
 		stables, i, j;
 
 	csbCompanions = [];
 	otherCompanions = [];
+	beamAQ = determineAQ(beamMass, chargeState);
 
+	//find stable isotopes that came through the first selection criteria
 	stables = stableCompanions(beamQ, beamMass)
 
 	for(i=0; i<stables.Z.length; i++){
@@ -106,7 +109,10 @@ function listCompanions(beamQ, beamMass, beamAQ){
 		for(j=1; j<stables.Z[i]; j++){
 			thisAQ = determineAQ(thisMass, j);
 
-			if( thisAQ > (beamAQ-(beamAQ*(0.5/25))) && thisAQ < (beamAQ+(beamAQ*(0.5/25))) && aqPreCheck(stables.A[i], stables.Z[i], beamMass, beamQ) ){
+			if( thisAQ > (beamAQ-(beamAQ*(0.5/25))) && 
+				thisAQ < (beamAQ+(beamAQ*(0.5/25))) && 
+				aqPreCheck(stables.A[i], stables.Z[i], beamMass, beamQ) 
+			){
 
 				//is this background coming from the CSB?
 				csbFlag = false;
@@ -118,7 +124,9 @@ function listCompanions(beamQ, beamMass, beamAQ){
 					'compA': stables.A[i],
 					'compSpecies': dataStore.elements[stables.Z[i]],
 					'compQ': j,
-					'compAoverQ': thisAQ.toFixed(3)
+					'compAoverQ': thisAQ.toFixed(3),
+					'compAoverQprecise': thisAQ,
+					'compCSB_AoverQ': (thisMass-j*dataStore.eMass)/stables.Q[i]
 				}
 
 				if(csbFlag)
@@ -132,7 +140,7 @@ function listCompanions(beamQ, beamMass, beamAQ){
 }
 
 function stableCompanions(beamQ, beamMass){
-	//find lists of stable companions
+	//find lists of stable companions that can sneak through the magnet with the main species & charge state selected
 
 	var i, j, mass, massToCharge,
 		stableA, stableZ, stableQ,
@@ -142,14 +150,16 @@ function stableCompanions(beamQ, beamMass){
 	stableZ = [];
 	stableQ = [];
 
+	//loop over all possible stable companions
 	for(i=0; i<dataStore.stableZ.length; i++){
 		mass = dataStore.masses[dataStore.stableZ[i]][''+dataStore.stableA[i]]
+		//loop over charge states for this companion
 		for(j=1; j<dataStore.stableZ[i]; j++){
 			massToCharge = (mass - j*dataStore.eMass)/j;
 
 			if( (massToCharge > beamMassToCharge*(1-0.5/dataStore.magnetResolution)) &&
-				(massToCharge < beamMassToCharge*(1+0.5/dataStore.magnetResolution))) {
-
+				(massToCharge < beamMassToCharge*(1+0.5/dataStore.magnetResolution))
+			){
 				stableA.push(dataStore.stableA[i]);
 				stableZ.push(dataStore.stableZ[i]);
 				stableQ.push(j)
@@ -179,8 +189,80 @@ function aqPreCheck(A, Z, beamMass, beamQ){
 
 }
 
+function determinePlotParameters(chargeState, A, species, companionData){
+	//
+
+	var i, CSB, SEBT, massToCharge = [];
+
+	for(i=0; i<companionData.length; i++){
+		massToCharge.push({
+			CSB: companionData[i].compCSB_AoverQ,
+			SEBT: companionData[i].compAoverQprecise
+		})
+	}
+
+	//dygraphs expects sorted input
+	massToCharge.sort(function(a, b){
+	    // Compare the 2 dates
+	    if(a.CSB < b.CSB) return -1;
+	    if(a.CSB > b.CSB) return 1;
+	    return 0;
+	});
+
+	//extract data back into two arrays:
+	CSB = [];
+	SEBT = [];
+	for(i=0; i<massToCharge.length; i++){
+		CSB.push(massToCharge[i].CSB);
+		SEBT.push(massToCharge[i].SEBT);
+	}
+
+	dataStore.plotData[A+species+chargeState] = {
+		'data': arrangePoints(CSB, SEBT),
+	}
+}
+
+function plotAcceptanceRegion(divID){
+	//
+
+	var data = dataStore.plotData[divID];
+
+	dataStore.plots[divID] = new Dygraph(
+	    // containing div
+	    document.getElementById('fig'+divID),
+
+	    // data
+	    data.data,
+
+	    //style
+	    {
+	    	labels: ['CSB-DSB', 'DSB-SEBT'],
+	    	strokeWidth: 0.0,
+	    	drawPoints: true,
+	    	xlabel: 'CSB-DSB',
+	    	ylabel: 'DSB-SEBT',
+	 		xRangePad: 10,
+	    	pointSize: 3,
+	    	highlightCircleSize: 4,
+	    	//digitsAfterDecimal: 10,
+	    	axes:{
+	    		x:{
+	    			pixelsPerLabel: 30,
+	    		},
+	    		y:{
+	    			axisLabelWidth: 100
+	    		}
+	    	},
+	    }
+	);
+}
+
 function ulCallback(){
 	//runs after ultralight is finished setting up the page.
+
+	for(key in dataStore.plotData){
+		plotAcceptanceRegion(key);
+	}
 
 	return 0
 }

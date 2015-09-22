@@ -148,7 +148,7 @@ function determineIntensityParameters(beamMass, chargeState, A, species){
 }
 
 function drawAQvsIntensity(divID){
-	//
+	//plot intensity versus AQ in a div#divID, and show magnet transmission region
 
 	var data = dataStore.plotData[divID];
 
