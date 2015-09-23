@@ -1,15 +1,12 @@
-//=================================
-// ultralight pageload callback
-//=================================
-
 function ulAuxilaryData(route, data){
 
-	var A, Z, qOriginal, chargeStates, beamMass, i, companions;
+	var A, Z, qOriginal, chargeStates, beamMass, i, companions, AQoriginal;
 
 	A = parseInt(data.A);
 	Z = species2z(data.species);
 	qOriginal = parseInt(data.qOriginal);
 	beamMass = dataStore.masses[Z][''+A];
+	AQoriginal = (beamMass - qOriginal*dataStore.eMass)/qOriginal
 
 	//what other charge states of the beam species are going to show up, in addition to the original selected?
 	chargeStates = beamChargeStates(Z, beamMass, qOriginal);
@@ -20,13 +17,13 @@ function ulAuxilaryData(route, data){
 		companions = listCompanions(qOriginal, beamMass, chargeStates[i].q);
 		chargeStates[i]['csbCompanions'] = companions[0];
 		chargeStates[i]['otherCompanions'] = companions[1];
-		determinePlotParameters(chargeStates[i].q, A, data.species, companions[0])
+		determinePlotParameters(chargeStates[i].q, A, data.species, companions[0], chargeStates[i].AQprecise, AQoriginal)
 	}
 
 	if(route == "{{species}}/{{A}}/{{qOriginal}}"){
 		return {
 			'chargeStates': chargeStates,
-			'AQoriginal': ((beamMass - qOriginal*dataStore.eMass)/qOriginal).toFixed(3)
+			'AQoriginal': AQoriginal.toFixed(3)
 		}
 	}
 	return {}
@@ -36,11 +33,10 @@ function beamChargeStates(Z, beamMass, qOriginal){
 	//determine charge states and corresponding charge fractions, A/Q 
 	//for beam of Z and A, originally filtered for charge state qOriginal
 
-	var i, x, s, beamEnergy, meanQ, qFraction, AQ,
+	var i, x, s, meanQ, qFraction, AQ,
 		chargeStates = [];
 
-	beamEnergy = 1.5;
-	x = 3.86*Math.sqrt(beamEnergy)/Math.pow(Z,0.45); // what is this?
+	x = 3.86*Math.sqrt(dataStore.beamEnergy)/Math.pow(Z,0.45); // what is this?
 	meanQ = Z*Math.pow( (1+Math.pow(x,(-1/0.6))), -0.6)
 	s = 0.5*Math.pow( (meanQ*(1-Math.pow( (meanQ/Z), (1/0.6)))), 0.5); // for Z>20 <-- what about Z <=20?
 
@@ -54,7 +50,8 @@ function beamChargeStates(Z, beamMass, qOriginal){
 			{
 				'q': i,
 				'chargeFraction': qFraction.toFixed(1),
-				'AQ': AQ.toFixed(3)
+				'AQ': AQ.toFixed(3),
+				'AQprecise': AQ
 			});
 	}
 
@@ -140,7 +137,7 @@ function listCompanions(beamQ, beamMass, chargeState){
 }
 
 function stableCompanions(beamQ, beamMass){
-	//find lists of stable companions that can sneak through the magnet with the main species & charge state selected
+	//find lists of all stable companions that can sneak through the magnet with the main species & charge state selected
 
 	var i, j, mass, massToCharge,
 		stableA, stableZ, stableQ,
@@ -189,8 +186,8 @@ function aqPreCheck(A, Z, beamMass, beamQ){
 
 }
 
-function determinePlotParameters(chargeState, A, species, companionData){
-	//
+function determinePlotParameters(chargeState, A, species, companionData, SEBTwindowCenter, CSBwindowCenter){
+	//construct input data and parameters for the plot
 
 	var i, CSB, SEBT, massToCharge = [];
 
@@ -219,11 +216,13 @@ function determinePlotParameters(chargeState, A, species, companionData){
 
 	dataStore.plotData[A+species+chargeState] = {
 		'data': arrangePoints(CSB, SEBT),
+		'SEBTwindowCenter': SEBTwindowCenter,
+		'CSBwindowCenter': CSBwindowCenter
 	}
 }
 
 function plotAcceptanceRegion(divID){
-	//
+	//generate dygraph plotting A/Q at both selections
 
 	var data = dataStore.plotData[divID];
 
@@ -244,7 +243,6 @@ function plotAcceptanceRegion(divID){
 	 		xRangePad: 10,
 	    	pointSize: 3,
 	    	highlightCircleSize: 4,
-	    	//digitsAfterDecimal: 10,
 	    	axes:{
 	    		x:{
 	    			pixelsPerLabel: 30,
@@ -253,6 +251,56 @@ function plotAcceptanceRegion(divID){
 	    			axisLabelWidth: 100
 	    		}
 	    	},
+	    	//draw shaded A/Q acceptance regions
+	    	underlayCallback: function(canvasContext, area, g){
+
+	    		var xMin, xMax, yMin, yMax;
+
+	            canvasContext.fillStyle = "rgba(243, 156, 18, 0.5)";
+
+	            //RFQ pre-buncher A/Q window (x-axis)
+	            xMin = g.toDomXCoord(data.CSBwindowCenter-(data.CSBwindowCenter*(0.5/400)));
+	            xMax = g.toDomXCoord(data.CSBwindowCenter+(data.CSBwindowCenter*(0.5/400)));
+	            canvasContext.fillRect(xMin, area.y, xMax - xMin, area.h);
+
+	            //DSB pre-buncher A/Q window (y-axis)
+	            yMin = g.toDomYCoord(data.SEBTwindowCenter-(data.SEBTwindowCenter*(0.5/200)));
+	            yMax = g.toDomYCoord(data.SEBTwindowCenter+(data.SEBTwindowCenter*(0.5/200)));
+	            canvasContext.fillRect(area.x, yMin, area.w, yMax-yMin);
+           
+            },
+            //draw A/Q elipses around points
+            drawPointCallback: function(g, seriesName, canvasContext, cx, cy, color, pointSize){
+            	var AQres, xMin, yMin, xMax, yMax, width, height;
+
+          		AQres = 0.002;
+          		xMin = g.toDomXCoord(data.CSBwindowCenter - AQres);
+          		xMax = g.toDomXCoord(data.CSBwindowCenter + AQres);
+          		yMin = g.toDomYCoord(data.SEBTwindowCenter - AQres);
+          		yMax = g.toDomYCoord(data.SEBTwindowCenter + AQres);
+          		width = xMax - xMin;
+          		height = yMax - yMin;
+          		console.log(width)
+
+            	canvasContext.fillStyle = "rgba(1, 152, 117, 0.5)";
+            	drawEllipse(canvasContext, cx, cy, width, height, true);
+
+            },
+            drawHighlightPointCallback: function(g, seriesName, canvasContext, cx, cy, color, pointSize){
+            	var AQres, xMin, yMin, xMax, yMax, width, height;
+
+          		AQres = 0.002;
+          		xMin = g.toDomXCoord(data.CSBwindowCenter - AQres);
+          		xMax = g.toDomXCoord(data.CSBwindowCenter + AQres);
+          		yMin = g.toDomYCoord(data.SEBTwindowCenter - AQres);
+          		yMax = g.toDomYCoord(data.SEBTwindowCenter + AQres);
+          		width = xMax - xMin;
+          		height = yMax - yMin;
+
+            	canvasContext.fillStyle = "rgba(1, 152, 117, 1)";
+            	drawEllipse(canvasContext, cx, cy, width, height, false);
+            }
+
 	    }
 	);
 }

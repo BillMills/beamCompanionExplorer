@@ -172,7 +172,7 @@ function drawAQvsIntensity(divID){
 	    	highlightCircleSize: 4,
 	    	axes:{
 	    		x:{
-
+	    			pixelsPerLabel: 30,
 	    		},
 	    		y:{
 	    			valueRange:[data.yMin, data.yMax],
