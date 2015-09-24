@@ -1,17 +1,6 @@
-//==================
-// physics
-//==================
-
 function ulAuxilaryData(route, data){
 	// determine charge states, A/Q values, companions and plots from A and Z.
 	var url, path, i, A, Z, beamMass, chargeStates, companions;
-
-	//extract the base URL where this page is found.
-	// url = window.location.protocol + "//" + window.location.host 
-	// path = window.location.pathname.split('/').slice(0,-1);
-	// for(i=0; i<path.length; i++){
-	// 	url += path[i] + '/'
-	// }
 
 	A = parseInt(data.A);
 	Z = species2z(data.species);
@@ -22,10 +11,10 @@ function ulAuxilaryData(route, data){
 	//for every accepted charge state, generate both lists of companions and append to the corresponding object,
 	//and generate information needed for plots
 	for(i=0; i<chargeStates.length; i++){
-		companions = listCompanions(chargeStates[i].q, beamMass)
+		companions = listCompanions(chargeStates[i].q, beamMass);
 		chargeStates[i]['csbCompanions'] = companions[0];
 		chargeStates[i]['otherCompanions'] = companions[1];
-		determineIntensityParameters(beamMass, chargeStates[i].q, A, data.species )
+		determineIntensityParameters(beamMass, chargeStates[i].q, A, data.species);
 	}
 
 	if(route == "{{species}}/{{A}}"){
@@ -35,40 +24,43 @@ function ulAuxilaryData(route, data){
 }
 
 function validChargeStates(Z, beamMass){
-	// determine valid charge states, and corresponding A/Q.
+	// determine valid charge states and corresponding A/Q, for an element described by Z and beamMass.
 
-	var i, massToCharge, chargeStates;
+	var i, AQ, chargeStates;
 	
 	chargeStates = [];
 
 	for(i=1; i<=Z; i++){
-		massToCharge = (beamMass - i*dataStore.eMass)/i;
+		AQ = (beamMass - i*dataStore.eMass)/i;
 	
-		if( (massToCharge > 4.9) && (massToCharge <= 7) ){
-			chargeStates[chargeStates.length] = {"q":i, "aOverQ":massToCharge.toFixed(3)};
+		if( (AQ > 4.9) && (AQ <= 7) ){
+			chargeStates[chargeStates.length] = {"q":i, "AQ":AQ.toFixed(3)};
 		}
 	}
 
 	return chargeStates;
 }
 
-function listCompanions(beamQ, beamMass){
+function listCompanions(Q, beamMass){
 	//generate two lists: one of likely companions, and one of possible companions.
 
-	var i, j, mass, massToCharge, csbCompanions, otherCompanions, csbFlag, data,
-		beamMassToCharge = (beamMass - beamQ*dataStore.eMass)/beamQ;
+	var i, j, companionMass, companionAQ, csbCompanions, otherCompanions, csbFlag, data,
+		AQ = (beamMass - Q*dataStore.eMass)/Q;
 
 	csbCompanions = [];
 	otherCompanions = [];
 
+	//loop over all possible companions
 	for(i=0; i<dataStore.stableZ.length; i++){
-		mass = dataStore.masses[dataStore.stableZ[i]][''+dataStore.stableA[i]]
+		companionMass = dataStore.masses[dataStore.stableZ[i]][''+dataStore.stableA[i]]
+		//loop over all possible charge states of this companion
 		for(j=1; j<dataStore.stableZ[i]; j++){
-			massToCharge = (mass - j*dataStore.eMass)/j;
+			companionAQ = (companionMass - j*dataStore.eMass)/j;
 
-			if( (massToCharge > beamMassToCharge*(1-0.5/dataStore.magnetResolution)) &&
-				(massToCharge < beamMassToCharge*(1+0.5/dataStore.magnetResolution))) {
+			if( (companionAQ > AQ*(1-0.5/dataStore.magnetResolution)) &&
+				(companionAQ < AQ*(1+0.5/dataStore.magnetResolution))) {
 
+				//is this companion likely to come from the CSB?
 				csbFlag = false;
 				if(dataStore.linerSpecies[dataStore.liner].indexOf(dataStore.stableZ[i]) != -1){
 					csbFlag = true;
@@ -78,7 +70,7 @@ function listCompanions(beamQ, beamMass){
 					'compA': dataStore.stableA[i],
 					'compSpecies': dataStore.elements[dataStore.stableZ[i]],
 					'compQ': j,
-					'compAoverQ': massToCharge.toFixed(3)
+					'compAoverQ': companionAQ.toFixed(3)
 				}
 
 				if(csbFlag)
@@ -92,40 +84,35 @@ function listCompanions(beamQ, beamMass){
 	return [csbCompanions, otherCompanions]
 }
 
-function determineIntensityParameters(beamMass, chargeState, A, species){
+function determineIntensityParameters(beamMass, Q, A, species){
 	// determine the various parameters needed to draw an A/Q vs. Intensity plot.
 
 	var AQ, AQmin, AQmax, intensityMin, intensityMax,			//plot ranges
-		i, idxIntensityMin, idxIntensityMax, idxAQlower,		//array indices
+		i, idxAQlower,		//array indices
 		bkgIntensity, AQpoints, dygraphData,					//data arrays
 		magLow, magHigh;										//magnet acceptance
 
-	AQ = (beamMass - chargeState*dataStore.eMass) / chargeState;
+	AQ = (beamMass - Q*dataStore.eMass) / Q;
 	AQmin = AQ*(1 - 1 / dataStore.magnetResolution);
 	AQmax = AQ*(1 + 1 / dataStore.magnetResolution);
 	intensityMin = 1e-6;
 	intensityMax = 1e-13;
-	idxIntensityMin = -1;
-	idxIntensityMax = -1;
 	AQpoints = [];
 	bkgIntensity = [];
 
 	for(i=0; dataStore.bkgAQ[i] < AQmax; i++){
-		//omit things off the bottom of the AQ scale
-		if(dataStore.bkgAQ[i] < AQmin){
-			idxAQlower = i;
+		//omit things off the AQ scale
+		if(dataStore.bkgAQ[i] < AQmin || dataStore.bkgAQ[i] > AQmax){
 			continue;
 		}
 
 		//log intensities and corresponding A/Q values in range, keep minimum and maximum intensity updated
-		AQpoints[AQpoints.length] = dataStore.bkgAQ[i];
-		bkgIntensity[bkgIntensity.length] = dataStore.bkgIntensity[i];
+		AQpoints.push(dataStore.bkgAQ[i]);
+		bkgIntensity.push(dataStore.bkgIntensity[i]);
 		if(dataStore.bkgIntensity[i] < intensityMin){
 			intensityMin = dataStore.bkgIntensity[i];
-			idxIntensityMin = i;
 		} else if(dataStore.bkgIntensity[i] > intensityMax){
 			intensityMax = dataStore.bkgIntensity[i];
-			idxIntensityMax = i;
 		}
 	}
 
@@ -134,12 +121,10 @@ function determineIntensityParameters(beamMass, chargeState, A, species){
 	magHigh = AQ*(1 + 0.5 / dataStore.magnetResolution);
 
 	//log data for consumption by dygraphs later
-	dataStore.plotData[A+species+chargeState] = {
+	dataStore.plotData[A+species+Q] = {
 		'data': arrangePoints(AQpoints, bkgIntensity),
 		'magLow': magLow,
 		'magHigh': magHigh,
-		'xMin': AQmin,
-		'xMax': AQmax,
 		'yMin': intensityMin/10,
 		'yMax': intensityMax*10
 	}
@@ -182,19 +167,15 @@ function drawAQvsIntensity(divID){
 	    	//draw shaded magnet region
 	    	underlayCallback: function(canvas, area, g) {
 
+	    		var xMin = g.toDomXCoord(data.magLow);
+	    		var xMax = g.toDomXCoord(data.magHigh);
+	    		var transmissionWidth = xMax - xMin;
+
 	            canvas.fillStyle = "rgba(255, 255, 102, 1.0)";
-
-	            function highlight_period(x_start, x_end) {
-	             	var canvas_left_x = g.toDomXCoord(x_start);
-	             	var canvas_right_x = g.toDomXCoord(x_end);
-	             	var canvas_width = canvas_right_x - canvas_left_x;
-	             	canvas.fillRect(canvas_left_x, area.y, canvas_width, area.h);
-	             	canvas.font = "16px sans-serif";
-	             	canvas.fillStyle = '#000000';
-	             	canvas.fillText('Transmitted', canvas_left_x, area.y+16)
-	            }
-
-				highlight_period(data.magLow,data.magHigh);            
+	            canvas.fillRect(xMin, area.y, transmissionWidth, area.h);
+	            canvas.font = "16px sans-serif";
+	            canvas.fillStyle = '#000000';
+	            canvas.fillText('Transmitted', xMin, area.y+16);           
             }
 	    }
 	);
