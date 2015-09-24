@@ -199,7 +199,7 @@ function drawAQvsIntensity(divID){
 	    }
 	);
 
-	prepImageSave(divID)
+	prepImageSave(divID, 'pngDump', 0);
 }
 
 //=================================

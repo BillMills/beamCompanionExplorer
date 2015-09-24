@@ -2,18 +2,19 @@
 // plot to png wrangling
 // =========================
 
-function savePlot(id){
+function savePlot(id, linkPrefix, imgPrefix){
 	//Somewhat convoluted exercise to make dygraphs saveable as png...
 
-	var link = document.getElementById('savePlot'+id)
-
-	link.href = getBase64Image(document.getElementById('pngDump'+id));
+	var link = document.getElementById(linkPrefix+id)
+	console.log(link)
+	console.log(document.getElementById(imgPrefix+id))
+	link.href = getBase64Image(document.getElementById(imgPrefix+id));
 	link.click();
 
 }
 
 //generate a hidden image and send its data uri to the appropriate place for saving:
-function prepImageSave(id){
+function prepImageSave(id, imgPrefix, legendHeight){
 	var dygraph = dataStore.plots[id];
 
 	var options = {
@@ -33,10 +34,10 @@ function prepImageSave(id){
 	    legendFont: "bold 18px sans-serif",
 	    legendFontColor: "black",
 
-	    legendHeight: 0    // suppress legend
+	    legendHeight: legendHeight
 	};
 
-	Dygraph.Export.asPNG(dygraph, document.getElementById('pngDump'+id), options);
+	Dygraph.Export.asPNG(dygraph, document.getElementById(imgPrefix+id), options);
 }
 
 function getBase64Image(img) {

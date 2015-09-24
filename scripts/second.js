@@ -393,6 +393,8 @@ function plotAcceptanceRegion(divID){
 	    }
 	);
 
+	prepImageSave(divID, 'pngAcceptance', 0);
+
 }
 
 function identifyIsobars(mass, candidates){
@@ -472,6 +474,8 @@ function plotCSF(divID){
 	    	}
 	    }
 	);
+
+	prepImageSave(divID, 'pngCSF', 40);
 
 }
 
