@@ -1,3 +1,7 @@
 .shhh{
 	display: none;
 }
+
+.legend	b{
+	font-weight: normal;
+}

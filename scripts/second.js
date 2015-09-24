@@ -31,17 +31,13 @@ function ulAuxilaryData(route, data){
 
 function beamChargeStates(Z, beamMass, qOriginal){
 	//determine charge states and corresponding charge fractions, A/Q 
-	//for beam of Z and A, originally filtered for charge state qOriginal
+	//for beam of Z and beamMass, originally filtered for charge state qOriginal
 
 	var i, x, s, meanQ, qFraction, AQ,
 		chargeStates = [];
 
-	x = 3.86*Math.sqrt(dataStore.beamEnergy)/Math.pow(Z,0.45); // what is this?
-	meanQ = Z*Math.pow( (1+Math.pow(x,(-1/0.6))), -0.6)
-	s = 0.5*Math.pow( (meanQ*(1-Math.pow( (meanQ/Z), (1/0.6)))), 0.5); // for Z>20 <-- what about Z <=20?
-
 	for(i=qOriginal; i<=Z; i++){
-		qFraction = chargeFraction(i, s, meanQ)
+		qFraction = chargeStateFraction(Z, dataStore.beamEnergy, i)
 		if(i>qOriginal && qFraction<0.5) continue;
 
 		AQ = determineAQ(beamMass, i)
@@ -58,9 +54,13 @@ function beamChargeStates(Z, beamMass, qOriginal){
 	return chargeStates
 }
 
-function chargeFraction(q, s, meanQ){
+function chargeStateFraction(Z, beamEnergy, q){
+	//citation needed
 
-	var j, fraction, sum, height;
+	var j, fraction, sum, height, s, meanQ;
+
+	s = chargeStateWidth(Z, beamEnergy);
+	meanQ = meanChargeState(Z, beamEnergy);
 
 	j = 0;
 	fraction = 0;
@@ -84,6 +84,58 @@ function chargeFraction(q, s, meanQ){
   	fraction *= 100;
 
   	return fraction;
+}
+
+function meanChargeState(Z, beamEnergy){
+	//citation needed
+
+	var x, meanQ;
+
+	x = 3.86*Math.sqrt(beamEnergy)/Math.pow(Z,0.45);
+	meanQ = Z*Math.pow( (1+Math.pow(x,(-1/0.6))), -0.6);
+
+	return meanQ
+
+}
+
+function chargeStateWidth(Z, beamEnergy){
+	//citation needed
+
+	var meanQ = meanChargeState(Z, beamEnergy)
+	return 0.5*Math.pow( (meanQ*(1-Math.pow( (meanQ/Z), (1/0.6)))), 0.5); // for Z>20 <-- what about Z <=20?
+}
+
+function chargeStateArray(Zs, beamEnergy){
+	//generate an array of points for Dygraphs to plot describing the charge state fraction for the element in question
+	//Zs is an array of Z values to generate points for.
+
+	var points = [];
+	var thisPoint = [];
+	var qMin = 1000;
+	var qMax = 0;
+	var i, j, qCenter, qWidth;
+
+	//determine a sensible maximum range of data
+	for(i=0; i<Zs.length; i++){
+		qCenter = meanChargeState(Zs[i], dataStore.beamEnergy);
+		qWidth = chargeStateWidth(Zs[i], dataStore.beamEnergy);
+
+		qMin = Math.min(qMin, qCenter - 5*qWidth);
+		qMax = Math.max(qMax, qCenter + 5*qWidth);
+	}
+	qMin = Math.floor(qMin);
+	qMax = Math.ceil(qMax)
+
+	for(i=qMin; i<qMax; i++){
+		thisPoint = [i];
+		for(j=0; j<Zs.length; j++){
+			thisPoint.push(chargeStateFraction(Zs[j], beamEnergy, i))
+		}
+		points.push(thisPoint);
+	}
+
+	return points;
+
 }
 
 function listCompanions(beamQ, beamMass, chargeState){
@@ -189,14 +241,26 @@ function aqPreCheck(A, Z, beamMass, beamQ){
 function determinePlotParameters(chargeState, A, species, companionData, SEBTwindowCenter, CSBwindowCenter){
 	//construct input data and parameters for the plot
 
-	var i, CSB, SEBT, massToCharge = [];
+	var i, CSB, SEBT, strippedCharge, massToCharge = [];
 
 	for(i=0; i<companionData.length; i++){
 		massToCharge.push({
 			CSB: companionData[i].compCSB_AoverQ,
-			SEBT: companionData[i].compAoverQprecise
+			SEBT: companionData[i].compAoverQprecise,
+			species: companionData[i].compSpecies,
+			A: companionData[i].compA,
+			Q: companionData[i].compQ
 		})
 	}
+
+	//add the species of interest to the list
+	massToCharge.push({
+		CSB: CSBwindowCenter,
+		SEBT: SEBTwindowCenter,
+		species: species,
+		A: A,
+		Q: chargeState
+	});
 
 	//dygraphs expects sorted input
 	massToCharge.sort(function(a, b){
@@ -209,15 +273,23 @@ function determinePlotParameters(chargeState, A, species, companionData, SEBTwin
 	//extract data back into two arrays:
 	CSB = [];
 	SEBT = [];
+	strippedCharge = [];
 	for(i=0; i<massToCharge.length; i++){
 		CSB.push(massToCharge[i].CSB);
 		SEBT.push(massToCharge[i].SEBT);
+		strippedCharge.push({
+			A: massToCharge[i].A,
+			Q: massToCharge[i].Q,
+			species: massToCharge[i].species,
+		})
 	}
 
 	dataStore.plotData[A+species+chargeState] = {
 		'data': arrangePoints(CSB, SEBT),
 		'SEBTwindowCenter': SEBTwindowCenter,
-		'CSBwindowCenter': CSBwindowCenter
+		'CSBwindowCenter': CSBwindowCenter,
+		'strippedCharge': strippedCharge,
+		'selectedMass': A
 	}
 }
 
@@ -236,19 +308,37 @@ function plotAcceptanceRegion(divID){
 	    //style
 	    {
 	    	labels: ['CSB-DSB', 'DSB-SEBT'],
+	    	labelsDiv: 'legend' + divID,
+	    	valueFormatter: function(num, opts, seriesName, dygraph, row, col){
+
+	    		var species = HTMLement(data.strippedCharge[row].A, data.strippedCharge[row].Q, data.strippedCharge[row].species)
+
+	    		if(col == 0)
+		    		return species + ': ' +  seriesName + ': ' + num.toFixed(5);
+		    	else 
+		    		return num.toFixed(5);
+	    	},
+	    	hideOverlayOnMouseOut: false,
 	    	strokeWidth: 0.0,
 	    	drawPoints: true,
 	    	xlabel: 'CSB-DSB',
 	    	ylabel: 'DSB-SEBT',
 	 		xRangePad: 10,
 	    	pointSize: 3,
-	    	highlightCircleSize: 4,
+	    	highlightCircleSize: 2,
+	    	digitsAfterDecimal: 5,
 	    	axes:{
 	    		x:{
 	    			pixelsPerLabel: 30,
+	    			axisLabelFormatter: function(number, granularity, opts, dygraph){
+	    				return number.toFixed(3);
+	    			}
 	    		},
 	    		y:{
-	    			axisLabelWidth: 100
+	    			axisLabelWidth: 100,
+	    			axisLabelFormatter: function(number, granularity, opts, dygraph){
+	    				return number.toFixed(3);
+	    			}
 	    		}
 	    	},
 	    	//draw shaded A/Q acceptance regions
@@ -280,29 +370,109 @@ function plotAcceptanceRegion(divID){
           		yMax = g.toDomYCoord(data.SEBTwindowCenter + AQres);
           		width = xMax - xMin;
           		height = yMax - yMin;
-          		console.log(width)
 
-            	canvasContext.fillStyle = "rgba(1, 152, 117, 0.5)";
+	            canvasContext.fillStyle = "rgba(1, 152, 117, 0.5)";
             	drawEllipse(canvasContext, cx, cy, width, height, true);
+            }//,
+            //custom point drawing callback doesn't un-draw properly on mouseout, omit for now.
+            // drawHighlightPointCallback: function(g, seriesName, canvasContext, cx, cy, color, pointSize){
+            // 	var AQres, xMin, yMin, xMax, yMax, width, height;
 
-            },
-            drawHighlightPointCallback: function(g, seriesName, canvasContext, cx, cy, color, pointSize){
-            	var AQres, xMin, yMin, xMax, yMax, width, height;
+          		// AQres = 0.002;
+          		// xMin = g.toDomXCoord(data.CSBwindowCenter - AQres);
+          		// xMax = g.toDomXCoord(data.CSBwindowCenter + AQres);
+          		// yMin = g.toDomYCoord(data.SEBTwindowCenter - AQres);
+          		// yMax = g.toDomYCoord(data.SEBTwindowCenter + AQres);
+          		// width = xMax - xMin;
+          		// height = yMax - yMin;
 
-          		AQres = 0.002;
-          		xMin = g.toDomXCoord(data.CSBwindowCenter - AQres);
-          		xMax = g.toDomXCoord(data.CSBwindowCenter + AQres);
-          		yMin = g.toDomYCoord(data.SEBTwindowCenter - AQres);
-          		yMax = g.toDomYCoord(data.SEBTwindowCenter + AQres);
-          		width = xMax - xMin;
-          		height = yMax - yMin;
-
-            	canvasContext.fillStyle = "rgba(1, 152, 117, 1)";
-            	drawEllipse(canvasContext, cx, cy, width, height, false);
-            }
+            // 	canvasContext.strokeStyle = "rgba(1, 152, 117, 1)";
+            // 	drawEllipse(canvasContext, cx, cy, width, height, false);
+            // }
 
 	    }
 	);
+
+}
+
+function identifyIsobars(mass, candidates){
+	//candidates == array of objects: {A, Q, species}
+	//returns array of Z values of candidates isobaric to mass.
+
+	var i;
+	var isobarZ = []
+
+	for(i=0; i<candidates.length; i++){
+		if(candidates[i].A == mass){
+			isobarZ.push(dataStore.elements.indexOf(candidates[i].species));
+		}
+	}
+
+	return isobarZ.sort()
+}
+
+function generateElementLabels(Zs){
+	//given an array of Zs, return an array of corresponding element symbols
+
+	var i, 
+		symbols = [];
+
+	for(i=0; i<Zs.length; i++){
+		symbols.push(dataStore.elements[Zs[i]])
+	} 
+
+	return symbols
+}
+
+function plotCSF(divID){
+	//generate dygraph plotting A/Q at both selections
+
+	var data = dataStore.plotData[divID];
+	var Zs = identifyIsobars(data.selectedMass, data.strippedCharge);
+	var labels = generateElementLabels(Zs);
+	labels.unshift('Charge State');
+
+	dataStore.plots[divID] = new Dygraph(
+	    // containing div
+	    document.getElementById('csf'+divID),
+
+	    // data
+	    chargeStateArray(Zs, dataStore.beamEnergy),
+
+	    //style
+	    {
+	    	labels: labels,
+	    	strokeWidth: 2,
+	    	hideOverlayOnMouseOut: false,
+	    	xlabel: 'Charge State',
+	    	ylabel: '% of total',
+	    	digitsAfterDecimal: 5,
+	    	legend: 'always',
+	    	labelsSeparateLines: true,
+	    	labelsDivWidth: 100,
+	    	// colors courtesy http://tools.medialab.sciences-po.fr/iwanthue/
+	    	colors: [	"#7F6FC0",
+						"#80CE4C",
+						"#BF543A",
+						"#596137",
+						"#84CD9F",
+						"#CFB253",
+						"#C55983",
+						"#9BADBD",
+						"#503647",
+						"#CA4FC8"
+					],
+	    	axes:{
+	    		x:{
+	    			pixelsPerLabel: 30,
+	    		},
+	    		y:{
+	    			axisLabelWidth: 100,
+	    		}
+	    	}
+	    }
+	);
+
 }
 
 function ulCallback(){
@@ -310,6 +480,7 @@ function ulCallback(){
 
 	for(key in dataStore.plotData){
 		plotAcceptanceRegion(key);
+		plotCSF(key);
 	}
 
 	return 0

@@ -80,6 +80,15 @@ function arrangePoints(x, y){
 	return data;
 }
 
+function HTMLement(A, Q, species){
+	// return an HTML formatted element with mass and charge state.
+
+	var html = '<sup>'+A+'</sup>' + species;
+	html += '<sup>'+Q+'+</sup>';
+
+	return html
+}
+
 function drawEllipse(context, centerX, centerY, width, height, fill) {
 	//fill true = fill ellipse, fill false = otline ellipse.
 	//thx http://www.williammalone.com/briefs/how-to-draw-ellipse-html5-canvas/	
