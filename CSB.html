@@ -14,16 +14,17 @@
     	<link rel="stylesheet" type="text/css" href="custom.css" />
 
         <script id="body" type="text/template" route="{{species}}/{{A}}">
-            <div class='header'>
-            	<h1>Beam Companion Explorer</h1>
-            </div>
+            {{> header}}
+
         	{{#chargeStates}}
         		{{> CSBchargeState}}
         	{{/chargeStates}}
+
+            {{> footer}}
         </script>
 
     	<script type='text/javascript'>
-	    	ul = new ultralight(['CSBchargeState'])
+	    	ul = new ultralight(['CSBchargeState', 'header', 'footer'])
 	    </script>
     </head>
 </html>

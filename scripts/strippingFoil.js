@@ -302,6 +302,9 @@ function plotAcceptanceRegion(divID){
 
 	var data = dataStore.plotData[divID];
 
+	var width = document.getElementById('wrap'+divID).offsetWidth;
+	var height = 32/48*width;
+
 	dataStore.plots[divID] = new Dygraph(
 	    // containing div
 	    document.getElementById('fig'+divID),
@@ -312,6 +315,8 @@ function plotAcceptanceRegion(divID){
 	    //style
 	    {
 	    	labels: ['CSB-DSB', 'DSB-SEBT'],
+	    	width: width,
+	    	height: height,
 	    	labelsDiv: 'legend' + divID,
 	    	valueFormatter: function(num, opts, seriesName, dygraph, row, col){
 
@@ -437,6 +442,8 @@ function plotCSF(divID){
 	var Zs = identifyIsobars(data.selectedMass, data.companionSpec);
 	var labels = generateElementLabels(Zs);
 	labels.unshift('Charge State');
+	var width = document.getElementById('wrap'+divID).offsetWidth;
+	var height = 32/48*width;
 
 	dataStore.plots[divID] = new Dygraph(
 	    // containing div
@@ -448,6 +455,8 @@ function plotCSF(divID){
 	    //style
 	    {
 	    	labels: labels,
+	    	width: width,
+	    	height: height,
 	    	strokeWidth: 2,
 	    	hideOverlayOnMouseOut: false,
 	    	xlabel: 'Charge State',

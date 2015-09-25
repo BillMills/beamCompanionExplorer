@@ -6,8 +6,6 @@ function savePlot(id, linkPrefix, imgPrefix){
 	//Somewhat convoluted exercise to make dygraphs saveable as png...
 
 	var link = document.getElementById(linkPrefix+id)
-	console.log(link)
-	console.log(document.getElementById(imgPrefix+id))
 	link.href = getBase64Image(document.getElementById(imgPrefix+id));
 	link.click();
 
@@ -84,8 +82,8 @@ function arrangePoints(x, y){
 function HTMLement(A, Q, species){
 	// return an HTML formatted element with mass and charge state.
 
-	var html = '<sup>'+A+'</sup>' + species;
-	html += '<sup>'+Q+'+</sup>';
+	var html = '<strong><sup>'+A+'</sup>' + species;
+	html += '<sup>'+Q+'+</sup></strong>';
 
 	return html
 }

@@ -137,7 +137,6 @@ function drawAQvsIntensity(divID){
 
 	var data = dataStore.plotData[divID];
 	var width = document.getElementById('wrap'+divID).offsetWidth;
-	console.log(width)
 	var height = 32/48*width;
 
 	dataStore.plots[divID] = new Dygraph(

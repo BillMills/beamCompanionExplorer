@@ -1,3 +1,8 @@
+/*
+Thanks to the r shiny team for the css inspiration:
+http://shiny.rstudio.com/gallery/bus-dashboard.html
+*/
+
 /* generic */
 body{
 	background-color: #ECF0F1;
@@ -12,12 +17,34 @@ body{
 	border-top: 2px solid #F39C12;
 }
 
-/* Header */
-div.header{
+a{
+	color: #F9F9F9;
+	text-decoration: underline;
+}
+
+div.chargeStateWrapper{
+	clear: both;
+}
+
+div.figure{
+	padding: 1em 0em 1em 0em;
+}
+
+/* Header & Footer */
+div.branding{
 	background-color: #367FA9;
 	color: #F9F9F9;
 	padding: 1em;
+	clear: both;
+}
+
+div.header{
 	margin-bottom: 1em;
+}
+
+div.footer{
+	margin-top: 1em;
+	min-height: 10em;
 }
 
 /*species labels*/
@@ -28,16 +55,6 @@ div.isotopeBadge{
 div.isotope{
 	font-size: 200%;
 	font-weight: bold;
-}
-
-/*CSB wrapper*/
-div.CSBchargeStateWrapper{
-	clear: both;
-}
-
-/* CSB figures */
-div.CSBfigure{
-	padding: 1em 0em 1em 0em;
 }
 
 /* buttons */
@@ -53,6 +70,11 @@ div.longListWrapper{
 	overflow: auto;
 }
 
+div.longerListWrapper{
+	max-height: 600px;
+	overflow: auto;
+}
+
 tr.header{
 	font-weight: bold;
 }
@@ -64,6 +86,10 @@ tr.header{
 
 td{
 	padding-right:1em;
+}
+
+.legend{
+	margin-left: 1em;
 }
 
 .legend	b{
