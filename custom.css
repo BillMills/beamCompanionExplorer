@@ -1,5 +1,69 @@
+/* generic */
+body{
+	background-color: #ECF0F1;
+}
+
+.content{
+	background-color: #FFFFFF;
+	padding: 1em;
+	margin: 1em;
+	box-shadow: 0px 1px 3px rgba(0, 0, 0, 0.1);
+	border-radius: 3px;
+	border-top: 2px solid #F39C12;
+}
+
+/* Header */
+div.header{
+	background-color: #367FA9;
+	color: #F9F9F9;
+	padding: 1em;
+	margin-bottom: 1em;
+}
+
+/*species labels*/
+div.isotopeBadge{
+	text-align: center;
+}
+
+div.isotope{
+	font-size: 200%;
+	font-weight: bold;
+}
+
+/*CSB wrapper*/
+div.CSBchargeStateWrapper{
+	clear: both;
+}
+
+/* CSB figures */
+div.CSBfigure{
+	padding: 1em 0em 1em 0em;
+}
+
+/* buttons */
+
+button.savePlotButton{
+	margin-left: 1em;
+}
+
+/* companion lists */
+
+div.longListWrapper{
+	max-height: 300px;
+	overflow: auto;
+}
+
+tr.header{
+	font-weight: bold;
+}
+
+/* odds & ends */
 .shhh{
 	display: none;
+}
+
+td{
+	padding-right:1em;
 }
 
 .legend	b{

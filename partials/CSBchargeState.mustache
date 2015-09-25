@@ -1,39 +1,57 @@
-<ul>
-	<li>
-		<sup>{{A}}</sup>{{species}}<sup>{{q}}+</sup>
-	</li>
-	<li>
-		<p>A/Q:</p><p id='aq{{A}}{{species}}{{q}}'>{{AQ}}</p>
-	</li>
+<div class='CSBchargeStateWrapper'>
+	<div class='col-md-1 content isotopeBadge'>
+		<div class='isotope'><sup>{{A}}</sup>{{species}}<sup>{{q}}+</sup></div>
+		<div id='aq{{A}}{{species}}{{q}}'>A/Q: {{AQ}}</div>
+	</div>
 
-	<li>
-		<p>CSB Product Companions</p>
-		<p id='csbCompanions{{A}}{{species}}{{q}}'>
-			{{#csbCompanions}}
-				<sup>{{compA}}</sup>
-				{{compSpecies}}
-				<sup>{{compQ}}+</sup>
-				{{compAoverQ}}
-			{{/csbCompanions}}
-		</p>
-	</li>
-
-	<li>
-		<p>Other Companions</p>
-		<p id='otherCompanions{{A}}{{species}}{{q}}'>
-			{{#otherCompanions}}
-				<sup>{{compA}}</sup>
-				{{compSpecies}}
-				<sup>{{compQ}}+</sup>
-				{{compAoverQ}}
-			{{/otherCompanions}}
-		</p>
-	</li>
-
-	<li>
+	<div id='wrap{{A}}{{species}}{{q}}' class='col-md-7 content CSBfigure'>
 		<div id='fig{{A}}{{species}}{{q}}'></div>
 		<img id='pngDump{{A}}{{species}}{{q}}' class='shhh'></img>
-		<button onclick="savePlot('{{A}}{{species}}{{q}}', 'savePlot', 'pngDump')">Save Plot</button>
+		<button class='savePlotButton' onclick="savePlot('{{A}}{{species}}{{q}}', 'savePlot', 'pngDump')">Save Plot</button>
 		<a id='savePlot{{A}}{{species}}{{q}}' download='plot.png' class='shhh'>Save Plot</a>
-	</li>
-</ul>
+	</div>
+
+	<div class='col-md-2 content'>
+		<h4>CSB Product Companions</h4>
+		<table id='csbCompanions{{A}}{{species}}{{q}}'>
+			<tr class='header'>
+				<td>Species</td>
+				<td>A/Q</td>
+			</tr>
+			{{#csbCompanions}}
+				<tr>
+					<td>
+						<sup>{{compA}}</sup>
+						{{compSpecies}}
+						<sup>{{compQ}}+</sup>
+					</td>
+					<td>
+						{{compAoverQ}}
+					</td>
+				</tr>
+			{{/csbCompanions}}
+		</table>
+	</div>
+
+	<div class='col-md-2 content longListWrapper'>
+		<h4>Other Companions</h4>
+		<table id='otherCompanions{{A}}{{species}}{{q}}'>
+			<tr class='header'>
+				<td>Species</td>
+				<td>A/Q</td>
+			</tr>
+			{{#otherCompanions}}
+				<tr>
+					<td>
+						<sup>{{compA}}</sup>
+						{{compSpecies}}
+						<sup>{{compQ}}+</sup>
+					</td>
+					<td>
+						{{compAoverQ}}
+					</td>
+				</tr>
+			{{/otherCompanions}}
+		</table>
+	</div>
+</div>

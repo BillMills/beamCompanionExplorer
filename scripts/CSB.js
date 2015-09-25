@@ -136,6 +136,9 @@ function drawAQvsIntensity(divID){
 	//plot intensity versus AQ in a div#divID, and show magnet transmission region
 
 	var data = dataStore.plotData[divID];
+	var width = document.getElementById('wrap'+divID).offsetWidth;
+	console.log(width)
+	var height = 32/48*width;
 
 	dataStore.plots[divID] = new Dygraph(
 	    // containing div
@@ -147,6 +150,8 @@ function drawAQvsIntensity(divID){
 	    //style
 	    {
 	    	labels: ['A/Q', 'Intensity'],
+	    	width: width,
+	    	height: height,
 	    	strokeWidth: 0.0,
 	    	drawPoints: true,
 	    	xlabel: 'A/Q',
