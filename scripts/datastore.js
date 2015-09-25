@@ -6,7 +6,7 @@ dataStore.eMass = 0.0005485799; // AMU
 dataStore.magnetResolution = 100; //inverse of resolving power of magnet immediately following CSB
 dataStore.energyLoss = 1.7; //percent energy loss in stripping foil
 dataStore.beamEnergy = 1.5; //MeV / nucleon
-dataStore.liner = 'aluminium'
+dataStore.liner = 'aluminium' // any key of dataStore.linerSpecies
 dataStore.plotData = {};
 dataStore.plots = {};
 
