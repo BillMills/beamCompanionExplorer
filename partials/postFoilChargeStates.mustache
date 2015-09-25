@@ -1,0 +1,49 @@
+<ul>
+	<li>
+		<sup>{{A}}</sup>{{species}}<sup>{{q}}+</sup>
+	</li>
+	<li>
+		<ul>
+			<li>{{chargeFraction}}%</li>
+			<li>This A/Q: {{AQ}}</li>
+			<li>First A/Q: {{AQoriginal}}</li>
+			<li><sup>{{A}}</sup>{{species}}<sup>{{qOriginal}}+</sup></li>
+		</ul>
+	</li>
+	<li>
+		<p>CSB Product Companions</p>
+		<p id='csbCompanions{{A}}{{species}}{{q}}'>
+			{{#csbCompanions}}
+				<sup>{{compA}}</sup>
+				{{compSpecies}}
+				<sup>{{compQ}}+</sup>
+				{{compAQ}}
+			{{/csbCompanions}}
+		</p>
+	</li>
+
+	<li>
+		<p>Other Companions</p>
+		<p id='otherCompanions{{A}}{{species}}{{q}}'>
+			{{#otherCompanions}}
+				<sup>{{compA}}</sup>
+				{{compSpecies}}
+				<sup>{{compQ}}+</sup>
+				{{compAQ}}
+			{{/otherCompanions}}
+		</p>
+	</li>
+	<li>
+		<div id='fig{{A}}{{species}}{{q}}'></div>
+		<div id='legend{{A}}{{species}}{{q}}' class='legend'></div>
+		<img id='pngAcceptance{{A}}{{species}}{{q}}' class='shhh'></img>
+		<button onclick="savePlot('{{A}}{{species}}{{q}}', 'saveAcceptance', 'pngAcceptance')">Save Plot</button>
+		<a id='saveAcceptance{{A}}{{species}}{{q}}' download='acceptance.png' class='shhh'>Save Plot</a>
+	</li>
+	<li>
+		<div id='csf{{A}}{{species}}{{q}}'></div>
+		<img id='pngCSF{{A}}{{species}}{{q}}' class='shhh'></img>
+		<button onclick="savePlot('{{A}}{{species}}{{q}}', 'saveCSF', 'pngCSF')">Save Plot</button>
+		<a id='saveCSF{{A}}{{species}}{{q}}' download='isobaricCSF.png' class='shhh'>Save Plot</a>
+	</li>
+</ul>
