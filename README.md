@@ -1,6 +1,8 @@
 ## Beam Companion Explorer 
 A web app for exploring and visualizing beam companions picked up during charge state boosting in radioactive ion beam experiments.
 
+**[See testing status](http://griffincollaboration.github.io/beamCompanionExplorer/tests/tests.html)**
+
 ## Description
 
 The Charge-State Booster (CSB) is intended to produce radioactive ion beams in charge states greater than 1+. Stable isotopes are also ionized and produced by this device so must be considered when selecting which beam to extract. This tool may help identify which charge-state might be the cleanest when designing experimental proposals.
