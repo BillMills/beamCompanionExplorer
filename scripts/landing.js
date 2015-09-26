@@ -29,7 +29,7 @@ function checkForm(form){
     }
 
     // validation was successful
- 	document.location = 'CSB.html#' + element + '/' + mass;  
+ 	document.location = 'CSB.html?species=' + element + '&A=' + mass;  
     return false;
   }
 

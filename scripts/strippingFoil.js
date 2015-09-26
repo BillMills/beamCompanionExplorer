@@ -1,4 +1,4 @@
-function ulAuxilaryData(route, data){
+function ulAuxilaryData(data){
 
 	var A, Z, qOriginal, chargeStates, beamMass, i, companions, AQoriginal;
 
@@ -20,13 +20,10 @@ function ulAuxilaryData(route, data){
 		determinePlotParameters(chargeStates[i].q, A, data.species, companions[0], chargeStates[i].AQprecise, AQoriginal)
 	}
 
-	if(route == "{{species}}/{{A}}/{{qOriginal}}"){
-		return {
-			'chargeStates': chargeStates,
-			'AQoriginal': AQoriginal.toFixed(3)
-		}
+	return {
+		'chargeStates': chargeStates,
+		'AQoriginal': AQoriginal.toFixed(3)
 	}
-	return {}
 }
 
 function beamChargeStates(Z, beamMass, qOriginal){
