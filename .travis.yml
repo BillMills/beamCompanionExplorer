@@ -3,7 +3,9 @@ branches:
   only:
     - gh-pages
     - master
-before_script:
+before_install:
   - npm install -g grunt
+before_script:
+  - grunt build
 
 script: grunt test --verbose --force
