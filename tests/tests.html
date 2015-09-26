@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>helper.js testing</title>
+        <link rel="stylesheet" href="../css/qunit.css">
+    </head>
+    <body>
+        <div id="qunit"></div>
+        <div id="qunit-fixture"></div>
+        <script src="../scripts/qunit.js"></script>
+        <script src='../scripts/datastore.js' type="text/javascript"></script>
+        <script src="../scripts/helpers.js"></script>
+
+        <script>
+            QUnit.test( "species2z", function( assert ) {
+                assert.equal(species2z('H'), 1, 'H has Z=1');
+                assert.equal(species2z('Ca'), 20, 'Ca has Z=20');
+                assert.equal(species2z('Po'), 84, 'Po has Z=84');
+            });
+
+            QUnit.test( "chemCase", function( assert ) {
+                assert.equal(chemCase('xxx'), 'Xxx', 'xxx -> Xxx');
+                assert.equal(chemCase('XXX'), 'Xxx', 'XXX -> Xxx');
+                assert.equal(chemCase(''), '', 'empty string returns empty string');
+            }); 
+
+            QUnit.test( "arrangePoints", function( assert ) {
+                assert.deepEqual( arrangePoints([1,2,3],['a', 'b', 'c']), [[1,'a'],[2,'b'],[3,'c']], 'create array of arrays of pairwise elements' );
+            }); 
+
+            QUnit.test( "HTMLement", function( assert ) {
+                assert.equal(HTMLement(50, 8, 'Ca'), '<strong><sup>50</sup>Ca<sup>8+</sup></strong>', 'wrap A, Q and species in html');
+            });
+
+            QUnit.test( "determineAQ", function( assert ) {
+                dataStore.energyLoss = -10;
+                assert.equal(determineAQ(50, 8), (50-8*dataStore.eMass)/8, 'correct behavior with negative energy loss');
+                dataStore.energyLoss = 100;
+                assert.equal(determineAQ(50, 8), 0, 'correct behavior with positive energy loss');
+            });
+
+            QUnit.test( "validChargeStates", function( assert ) {
+                assert.deepEqual(validChargeStates(8,16), [{
+                    'q': 3,
+                    'AQ': ((16 - 3*dataStore.eMass)/3).toFixed(3)
+                }]
+                , '16-O has one valid charge state, the 3+');
+            });            
+        </script>
+      </body>
+</html>

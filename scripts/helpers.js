@@ -139,7 +139,7 @@ function validChargeStates(Z, beamMass){
 		AQ = (beamMass - i*dataStore.eMass)/i;
 	
 		if( (AQ > 4.9) && (AQ <= 7) ){
-			chargeStates[chargeStates.length] = {"q":i, "AQ":AQ.toFixed(3)};
+			chargeStates.push({"q":i, "AQ":AQ.toFixed(3)});
 		}
 	}
 
