@@ -73,7 +73,7 @@ function arrangePoints(x, y){
 	var i, data = []
 
 	for(i=0; i<x.length; i++){
-		data[data.length] = [x[i], y[i]]
+		data[data.length] = [x[i], y[i]];
 	}
 
 	return data;

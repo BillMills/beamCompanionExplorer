@@ -1,4 +1,4 @@
-function ulAuxilaryData(data){
+function auxilaryCSBdata(data){
 	// determine charge states, A/Q values, companions and plots from A and Z.
 	var url, path, i, A, Z, beamMass, chargeStates, companions;
 

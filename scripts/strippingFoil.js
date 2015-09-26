@@ -1,4 +1,4 @@
-function ulAuxilaryData(data){
+function auxilaryFoilData(data){
 
 	var A, Z, qOriginal, chargeStates, beamMass, i, companions, AQoriginal;
 
@@ -329,13 +329,13 @@ function plotAcceptanceRegion(divID){
 	    	hideOverlayOnMouseOut: false,
 	    	strokeWidth: 0.0,
 	    	drawPoints: true,
-	    	xlabel: 'A/Q (CSB-DSB)',
-	    	ylabel: 'A/Q (DSB-SEBT)',
+	    	xlabel: 'A/Q (First stage, CSB-DSB)',
+	    	ylabel: 'A/Q (After stripping, DSB-SEBT)',
 	 		xRangePad: 10,
 	    	pointSize: 3,
 	    	highlightCircleSize: 2,
 	    	digitsAfterDecimal: 5,
-	    	axes:{
+	    	axes: {
 	    		x:{
 	    			pixelsPerLabel: 30,
 	    			axisLabelFormatter: function(number, granularity, opts, dygraph){
@@ -367,36 +367,62 @@ function plotAcceptanceRegion(divID){
 	            canvasContext.fillRect(area.x, yMin, area.w, yMax-yMin);
            
             },
-            //draw A/Q elipses around points
-            drawPointCallback: function(g, seriesName, canvasContext, cx, cy, color, pointSize){
-            	var AQres, xMin, yMin, xMax, yMax, width, height;
+            series: {
+            	'DSB-SEBT':{
+		            //draw A/Q elipses around points
+		            
+		            drawPointCallback: function(g, seriesName, canvasContext, cx, cy, color, pointSize){
+		            	var AQres, xMin, yMin, xMax, yMax, width, height;
+		            	
+		          		AQres = 0.002;
+		          		xMin = g.toDomXCoord(data.CSBwindowCenter - AQres);
+		          		xMax = g.toDomXCoord(data.CSBwindowCenter + AQres);
+		          		yMin = g.toDomYCoord(data.SEBTwindowCenter - AQres);
+		          		yMax = g.toDomYCoord(data.SEBTwindowCenter + AQres);
+		          		width = xMax - xMin;
+		          		height = yMax - yMin;
 
-          		AQres = 0.002;
-          		xMin = g.toDomXCoord(data.CSBwindowCenter - AQres);
-          		xMax = g.toDomXCoord(data.CSBwindowCenter + AQres);
-          		yMin = g.toDomYCoord(data.SEBTwindowCenter - AQres);
-          		yMax = g.toDomYCoord(data.SEBTwindowCenter + AQres);
-          		width = xMax - xMin;
-          		height = yMax - yMin;
+			            canvasContext.fillStyle = "rgba(1, 152, 117, 0.5)";
+		            	drawEllipse(canvasContext, cx, cy, width, height, true);
+		            }//,
+		            //custom point drawing callback doesn't un-draw properly on mouseout, omit for now.
+		            // drawHighlightPointCallback: function(g, seriesName, canvasContext, cx, cy, color, pointSize){
+		            // 	var AQres, xMin, yMin, xMax, yMax, width, height;
+		            	
+		            // 	g.updateOptions({pointSize: 0}); //hack to force point redraw, in order to unhighlight previous point
+		            	
+		          		// AQres = 0.002;
+		          		// xMin = g.toDomXCoord(data.CSBwindowCenter - AQres);
+		          		// xMax = g.toDomXCoord(data.CSBwindowCenter + AQres);
+		          		// yMin = g.toDomYCoord(data.SEBTwindowCenter - AQres);
+		          		// yMax = g.toDomYCoord(data.SEBTwindowCenter + AQres);
+		          		// width = xMax - xMin;
+		          		// height = yMax - yMin;
 
-	            canvasContext.fillStyle = "rgba(1, 152, 117, 0.5)";
-            	drawEllipse(canvasContext, cx, cy, width, height, true);
-            }//,
-            //custom point drawing callback doesn't un-draw properly on mouseout, omit for now.
-            // drawHighlightPointCallback: function(g, seriesName, canvasContext, cx, cy, color, pointSize){
-            // 	var AQres, xMin, yMin, xMax, yMax, width, height;
+			           //  canvasContext.fillStyle = "rgba(102, 51, 153, 0.5)";
+		            // 	drawEllipse(canvasContext, cx, cy, width, height, true);
 
+		            // }
+		        }
+	        },
+            highlightCallback: function(event, x, points, row, seriesName){
+            // 	var AQres, xMin, yMin, xMax, yMax, width, height,
+            // 		canvasContext = event.target.getContext('2d');
+            // 	console.log(canvasContext)
+            // 	//g.updateOptions({pointSize: 0}); //hack to force point redraw, in order to unhighlight previous point
+            	
           		// AQres = 0.002;
-          		// xMin = g.toDomXCoord(data.CSBwindowCenter - AQres);
-          		// xMax = g.toDomXCoord(data.CSBwindowCenter + AQres);
-          		// yMin = g.toDomYCoord(data.SEBTwindowCenter - AQres);
-          		// yMax = g.toDomYCoord(data.SEBTwindowCenter + AQres);
+          		// xMin = dataStore.plots[divID].toDomXCoord(data.CSBwindowCenter - AQres);
+          		// xMax = dataStore.plots[divID].toDomXCoord(data.CSBwindowCenter + AQres);
+          		// yMin = dataStore.plots[divID].toDomYCoord(data.SEBTwindowCenter - AQres);
+          		// yMax = dataStore.plots[divID].toDomYCoord(data.SEBTwindowCenter + AQres);
           		// width = xMax - xMin;
           		// height = yMax - yMin;
 
-            // 	canvasContext.strokeStyle = "rgba(1, 152, 117, 1)";
-            // 	drawEllipse(canvasContext, cx, cy, width, height, false);
-            // }
+	           //  canvasContext.fillStyle = "rgba(102, 51, 153, 0.5)";
+            // 	drawEllipse(canvasContext, x, points[0], width, height, true);
+
+            }
 
 	    }
 	);

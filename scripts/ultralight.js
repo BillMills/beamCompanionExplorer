@@ -1,4 +1,4 @@
-function ultralight(partials){
+function ultralight(partials, dataLoader){
 	var i;
 
 	if(partials.constructor === Array){
@@ -6,6 +6,9 @@ function ultralight(partials){
 	} else{
 		this.partials = [];
 	}
+
+	if(typeof dataLoader === 'function')
+		this.ulAuxilaryData = dataLoader;
 
 	this.parseQuery = function(){
 		//return an object with keys/values as per query string
@@ -31,8 +34,8 @@ function ultralight(partials){
 			queryData = this.parseQuery();
 
 		//add additional data as necessary
-		if(typeof ulAuxilaryData === 'function'){
-			auxdata = ulAuxilaryData(queryData)
+		if(typeof this.ulAuxilaryData === 'function'){
+			auxdata = this.ulAuxilaryData(queryData)
 
 			for(auxkey in auxdata){
 				queryData[auxkey] = auxdata[auxkey];
@@ -42,8 +45,8 @@ function ultralight(partials){
 		//render template
 		template = document.getElementById('body').innerHTML;
 		html = Mustache.to_html(template, queryData, ul.partials);
-		//body = document.createElement('body'); //see #4
-		//document.getElementsByTagName('body')[0].appendChild(body);
+		body = document.createElement('body'); //see #4
+		document.getElementsByTagName('body')[0].appendChild(body);
 		document.body.innerHTML += html;
 		return 0;
 
