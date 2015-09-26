@@ -51,6 +51,12 @@ div.footer{
 	min-height: 10em;
 }
 
+/* Nav Header */
+h2.navHeader{
+	display: inline-block;
+	margin-right: 0.67em;
+}
+
 /*species labels*/
 div.isotopeBadge{
 	text-align: center;
