@@ -106,7 +106,8 @@ function determineIntensityParameters(beamMass, Q, A, species){
 		'magLow': magLow,
 		'magHigh': magHigh,
 		'yMin': intensityMin/10,
-		'yMax': intensityMax*10
+		'yMax': intensityMax*10,
+		'title' : HTMLement(A, Q, species)
 	}
 
 
@@ -127,7 +128,8 @@ function drawAQvsIntensity(divID){
 	    data.data,
 
 	    //style
-	    {
+	    {	
+	    	title: data.title,
 	    	labels: ['A/Q', 'Intensity'],
 	    	width: width,
 	    	height: height,

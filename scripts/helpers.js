@@ -111,11 +111,6 @@ function drawEllipse(context, centerX, centerY, width, height, fill) {
 	context.closePath();	
 }
 
-function scrollTo(){
-	console.log('butts')
-	//console.log(window.location + hash)
-}
-
 // ==================
 // physics
 // ==================

@@ -290,7 +290,8 @@ function determinePlotParameters(chargeState, A, species, companionData, SEBTwin
 		'SEBTwindowCenter': SEBTwindowCenter,
 		'CSBwindowCenter': CSBwindowCenter,
 		'companionSpec': companionSpec,
-		'selectedMass': A
+		'selectedMass': A,
+		'title': HTMLement(A, chargeState, species)
 	}
 }
 
@@ -311,6 +312,7 @@ function plotAcceptanceRegion(divID){
 
 	    //style
 	    {
+	    	title: data.title,
 	    	labels: ['CSB-DSB', 'DSB-SEBT'],
 	    	width: width,
 	    	height: height,
