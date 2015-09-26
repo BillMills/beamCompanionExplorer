@@ -517,7 +517,7 @@ function plotCSF(divID){
 
 }
 
-function ulCallback(){
+function pageload(){
 	//runs after ultralight is finished setting up the page.
 
 	for(key in dataStore.plotData){

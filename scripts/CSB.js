@@ -176,7 +176,7 @@ function drawAQvsIntensity(divID){
 // ultralight pageload callback
 //=================================
 
-function ulCallback(){
+function pageload(){
 	//runs after ultralight is finished setting up the page.
 	var key, isotope;
 

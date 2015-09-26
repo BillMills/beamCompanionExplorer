@@ -37,7 +37,7 @@ function checkForm(form){
 // ultralight pageload callback
 //=================================
 
-function ulCallback(){
+function pageload(){
 	populateElementList();
 
 	return 0
