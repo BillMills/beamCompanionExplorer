@@ -1,0 +1,10 @@
+<div class='content'>
+    <h2 class='navHeader'>Available Charge States:</h2>
+    <div class="btn-group" role="group">
+        {{#chargeStates}}
+            <button type="button" class="btn btn-default" onclick='window.location = location.href.replace(location.hash,"") + "#chargeStateOption{{q}}"'>
+                <div class='isotope'><sup>{{A}}</sup>{{species}}<sup>{{q}}+</sup></div>
+            </button>
+        {{/chargeStates}}
+    </div>
+</div>
