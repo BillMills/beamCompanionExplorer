@@ -2,6 +2,7 @@ function ulAuxilaryData(route, data){
 	// determine charge states, A/Q values, companions and plots from A and Z.
 	var url, path, i, A, Z, beamMass, chargeStates, companions;
 
+	dataStore.routeData = data;
 	A = parseInt(data.A);
 	Z = species2z(data.species);
 	beamMass = dataStore.masses[Z][''+A];
@@ -21,24 +22,6 @@ function ulAuxilaryData(route, data){
 		return {'chargeStates': chargeStates }
 	}
 	return {}
-}
-
-function validChargeStates(Z, beamMass){
-	// determine valid charge states and corresponding A/Q, for an element described by Z and beamMass.
-
-	var i, AQ, chargeStates;
-	
-	chargeStates = [];
-
-	for(i=1; i<=Z; i++){
-		AQ = (beamMass - i*dataStore.eMass)/i;
-	
-		if( (AQ > 4.9) && (AQ <= 7) ){
-			chargeStates[chargeStates.length] = {"q":i, "AQ":AQ.toFixed(3)};
-		}
-	}
-
-	return chargeStates;
 }
 
 function listCompanions(Q, beamMass){
@@ -161,11 +144,14 @@ function drawAQvsIntensity(divID){
 	    	highlightCircleSize: 4,
 	    	axes:{
 	    		x:{
-	    			pixelsPerLabel: 30,
+	    			pixelsPerLabel: 50,
+	    			axisLabelFormatter: function(number, granularity, opts, dygraph){
+	    				return number.toFixed(3);
+	    			}
 	    		},
 	    		y:{
 	    			valueRange:[data.yMin, data.yMax],
-	    			axisLabelWidth: 100
+	    			axisLabelWidth: 100,
 	    		}
 	    	},
 	    	//draw shaded magnet region
@@ -193,12 +179,11 @@ function drawAQvsIntensity(divID){
 
 function ulCallback(){
 	//runs after ultralight is finished setting up the page.
-	var key;
+	var key, isotope;
 
 	for(key in dataStore.plotData){
 		drawAQvsIntensity(key);
 	}
-
 
 	return 0
 }

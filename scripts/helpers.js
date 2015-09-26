@@ -21,7 +21,7 @@ function prepImageSave(id, imgPrefix, legendHeight){
 	    titleFontColor: "black",
 
 	    //Texts displayed below the chart's x-axis and to the left of the y-axis 
-	    axisLabelFont: "bold 24px sans-serif",
+	    axisLabelFont: "bold 20px sans-serif",
 	    axisLabelFontColor: "black",
 
 	    // Texts for the axis ticks
@@ -126,4 +126,22 @@ function determineAQ(mass, Q){
 	}
 
 	return AQ
+}
+
+function validChargeStates(Z, beamMass){
+	// determine valid charge states and corresponding A/Q, for an element described by Z and beamMass.
+
+	var i, AQ, chargeStates;
+	
+	chargeStates = [];
+
+	for(i=1; i<=Z; i++){
+		AQ = (beamMass - i*dataStore.eMass)/i;
+	
+		if( (AQ > 4.9) && (AQ <= 7) ){
+			chargeStates[chargeStates.length] = {"q":i, "AQ":AQ.toFixed(3)};
+		}
+	}
+
+	return chargeStates;
 }
