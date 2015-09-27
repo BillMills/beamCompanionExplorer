@@ -53,7 +53,7 @@ function beamChargeStates(Z, beamMass, qOriginal){
 }
 
 function chargeStateFraction(Z, beamEnergy, q){
-	//citation needed
+	//Y. Baudinet-Robinet, Nucl. Instrum. Methods 190, 197 (1981)
 	//what charge state fraction (in %) will Z ions of charge q occupy, with a beam of beamEnergy MeV/nucleon?
 
 	var j, fraction, sum, height, s, meanQ;
@@ -85,7 +85,7 @@ function chargeStateFraction(Z, beamEnergy, q){
 }
 
 function meanChargeState(Z, beamEnergy){
-	//citation needed
+	//V.S. Nikolaev and I.S. Dmitriev, Phys. Lett. A28, 277 (1968)
 
 	var x, meanQ;
 
@@ -97,7 +97,7 @@ function meanChargeState(Z, beamEnergy){
 }
 
 function chargeStateWidth(Z, beamEnergy){
-	//citation needed
+	//V.S. Nikolaev and I.S. Dmitriev, Phys. Lett. A28, 277 (1968)
 
 	var meanQ = meanChargeState(Z, beamEnergy)
 	return 0.5*Math.pow( (meanQ*(1-Math.pow( (meanQ/Z), (1/0.6)))), 0.5); // for Z>20 <-- what about Z <=20?
