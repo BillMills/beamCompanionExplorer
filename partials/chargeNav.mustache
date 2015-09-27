@@ -4,6 +4,9 @@
         {{#chargeStates}}
             <button type="button" class="btn btn-default" onclick='window.location = location.href.replace(location.hash,"") + "#chargeStateOption{{q}}"'>
                 <div class='isotope'><sup>{{A}}</sup>{{species}}<sup>{{q}}+</sup></div>
+                {{#chargeFraction}}
+                    <b>CF: {{.}}%</b>
+                {{/chargeFraction}}
             </button>
         {{/chargeStates}}
     </div>
