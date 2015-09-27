@@ -485,7 +485,7 @@ function plotCSF(divID){
 	    	strokeWidth: 2,
 	    	hideOverlayOnMouseOut: false,
 	    	xlabel: 'Charge State',
-	    	ylabel: '% of total',
+	    	ylabel: 'Charge State Fraction (%)',
 	    	digitsAfterDecimal: 5,
 	    	legend: 'always',
 	    	labelsSeparateLines: true,
