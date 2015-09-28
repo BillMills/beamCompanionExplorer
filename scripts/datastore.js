@@ -7,6 +7,7 @@ dataStore.magnetResolution = 100; //inverse of resolving power of magnet immedia
 dataStore.energyLoss = 1.7; //percent energy loss in stripping foil
 dataStore.beamEnergy = 1.5; //MeV / nucleon
 dataStore.liner = 'aluminium' // any key of dataStore.linerSpecies
+dataStore.AQfwhm = 0.001 //relative fwhm error on A/Q
 dataStore.plotData = {};
 dataStore.plots = {};
 

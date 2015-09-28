@@ -392,13 +392,14 @@ function plotAcceptanceRegion(divID){
 		            //draw A/Q elipses around points
 		            
 		            drawPointCallback: function(g, seriesName, canvasContext, cx, cy, color, pointSize){
-		            	var AQres, xMin, yMin, xMax, yMax, width, height;
-		            	
-		          		AQres = 0.002;
-		          		xMin = g.toDomXCoord(data.CSBwindowCenter - AQres);
-		          		xMax = g.toDomXCoord(data.CSBwindowCenter + AQres);
-		          		yMin = g.toDomYCoord(data.SEBTwindowCenter - AQres);
-		          		yMax = g.toDomYCoord(data.SEBTwindowCenter + AQres);
+		            	var xMin, yMin, xMax, yMax, width, height, x, y;
+
+		            	x = g.toDataXCoord(cx);
+		            	y = g.toDataYCoord(cy);
+		          		xMin = g.toDomXCoord(x*(1 - dataStore.AQfwhm));
+		          		xMax = g.toDomXCoord(x*(1 + dataStore.AQfwhm));
+		          		yMin = g.toDomYCoord(y*(1 - dataStore.AQfwhm));
+		          		yMax = g.toDomYCoord(y*(1 + dataStore.AQfwhm));
 		          		width = xMax - xMin;
 		          		height = yMax - yMin;
 
@@ -406,13 +407,15 @@ function plotAcceptanceRegion(divID){
 		            	drawEllipse(canvasContext, cx, cy, width, height, true);
 		            },
 		            drawHighlightPointCallback: function(g, seriesName, canvasContext, cx, cy, color, pointSize){
-		            	var AQres, xMin, yMin, xMax, yMax, width, height;
+		            	var xMin, yMin, xMax, yMax, width, height, x, y;
 		            			            	
-		          		AQres = 0.002;
-		          		xMin = g.toDomXCoord(data.CSBwindowCenter - AQres);
-		          		xMax = g.toDomXCoord(data.CSBwindowCenter + AQres);
-		          		yMin = g.toDomYCoord(data.SEBTwindowCenter - AQres);
-		          		yMax = g.toDomYCoord(data.SEBTwindowCenter + AQres);
+		            	x = g.toDataXCoord(cx);
+		            	y = g.toDataYCoord(cy);
+
+		          		xMin = g.toDomXCoord(x*(1 - dataStore.AQfwhm));
+		          		xMax = g.toDomXCoord(x*(1 + dataStore.AQfwhm));
+		          		yMin = g.toDomYCoord(y*(1 - dataStore.AQfwhm));
+		          		yMax = g.toDomYCoord(y*(1 + dataStore.AQfwhm));
 		          		width = xMax - xMin;
 		          		height = yMax - yMin;
 
