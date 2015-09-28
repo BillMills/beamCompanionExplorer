@@ -384,46 +384,25 @@ function plotAcceptanceRegion(divID){
 
 			            canvasContext.fillStyle = "rgba(1, 152, 117, 0.5)";
 		            	drawEllipse(canvasContext, cx, cy, width, height, true);
-		            }//,
-		            //custom point drawing callback doesn't un-draw properly on mouseout, omit for now.
-		            // drawHighlightPointCallback: function(g, seriesName, canvasContext, cx, cy, color, pointSize){
-		            // 	var AQres, xMin, yMin, xMax, yMax, width, height;
-		            	
-		            // 	g.updateOptions({pointSize: 0}); //hack to force point redraw, in order to unhighlight previous point
-		            	
-		          		// AQres = 0.002;
-		          		// xMin = g.toDomXCoord(data.CSBwindowCenter - AQres);
-		          		// xMax = g.toDomXCoord(data.CSBwindowCenter + AQres);
-		          		// yMin = g.toDomYCoord(data.SEBTwindowCenter - AQres);
-		          		// yMax = g.toDomYCoord(data.SEBTwindowCenter + AQres);
-		          		// width = xMax - xMin;
-		          		// height = yMax - yMin;
+		            },
+		            drawHighlightPointCallback: function(g, seriesName, canvasContext, cx, cy, color, pointSize){
+		            	var AQres, xMin, yMin, xMax, yMax, width, height;
+		            			            	
+		          		AQres = 0.002;
+		          		xMin = g.toDomXCoord(data.CSBwindowCenter - AQres);
+		          		xMax = g.toDomXCoord(data.CSBwindowCenter + AQres);
+		          		yMin = g.toDomYCoord(data.SEBTwindowCenter - AQres);
+		          		yMax = g.toDomYCoord(data.SEBTwindowCenter + AQres);
+		          		width = xMax - xMin;
+		          		height = yMax - yMin;
 
-			           //  canvasContext.fillStyle = "rgba(102, 51, 153, 0.5)";
-		            // 	drawEllipse(canvasContext, cx, cy, width, height, true);
+		          		canvasContext.clearRect(0, 0, canvasContext.canvas.width, canvasContext.canvas.height);
+			            canvasContext.fillStyle = "rgba(102, 51, 153, 0.5)";
+		            	drawEllipse(canvasContext, cx, cy, width, height, true);
 
-		            // }
+		            }
 		        }
-	        },
-            highlightCallback: function(event, x, points, row, seriesName){
-            // 	var AQres, xMin, yMin, xMax, yMax, width, height,
-            // 		canvasContext = event.target.getContext('2d');
-            // 	console.log(canvasContext)
-            // 	//g.updateOptions({pointSize: 0}); //hack to force point redraw, in order to unhighlight previous point
-            	
-          		// AQres = 0.002;
-          		// xMin = dataStore.plots[divID].toDomXCoord(data.CSBwindowCenter - AQres);
-          		// xMax = dataStore.plots[divID].toDomXCoord(data.CSBwindowCenter + AQres);
-          		// yMin = dataStore.plots[divID].toDomYCoord(data.SEBTwindowCenter - AQres);
-          		// yMax = dataStore.plots[divID].toDomYCoord(data.SEBTwindowCenter + AQres);
-          		// width = xMax - xMin;
-          		// height = yMax - yMin;
-
-	           //  canvasContext.fillStyle = "rgba(102, 51, 153, 0.5)";
-            // 	drawEllipse(canvasContext, x, points[0], width, height, true);
-
-            }
-
+	        }
 	    }
 	);
 
