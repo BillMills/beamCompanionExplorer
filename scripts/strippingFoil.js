@@ -242,7 +242,9 @@ function companionMagnetFilter(compA, compZ, beamMass, Q){
 function determinePlotParameters(chargeState, A, species, companionData, SEBTwindowCenter, CSBwindowCenter){
 	//construct input data and parameters for the plot for chargeState charge of the original selection
 
-	var i, CSB, SEBT, companionSpec, massToCharge = [];
+	var i, CSB, SEBT, companionSpec,
+		minX, maxX, minY, maxY, CSBwindowWidth, SEBTwindowWidth
+		massToCharge = [];
 
 	for(i=0; i<companionData.length; i++){
 		massToCharge.push({
@@ -285,13 +287,29 @@ function determinePlotParameters(chargeState, A, species, companionData, SEBTwin
 		})
 	}
 
+	//make sure axis minima and maxima include all points and the window limits
+	minX = Math.min.apply(null, CSB);
+	maxX = Math.max.apply(null, CSB);
+	minY = Math.min.apply(null, SEBT);
+	maxY = Math.max.apply(null, SEBT);
+	CSBwindowWidth = CSBwindowCenter/400;
+	SEBTwindowWidth = SEBTwindowCenter/200;  
+	minX = Math.min(minX, CSBwindowCenter - CSBwindowWidth);
+	maxX = Math.max(maxX, CSBwindowCenter + CSBwindowWidth);
+	minY = Math.min(minY, SEBTwindowCenter - SEBTwindowWidth);
+	maxY = Math.max(maxY, SEBTwindowCenter + SEBTwindowWidth);
+
 	dataStore.plotData[A+species+chargeState] = {
 		'data': arrangePoints(CSB, SEBT),
 		'SEBTwindowCenter': SEBTwindowCenter,
 		'CSBwindowCenter': CSBwindowCenter,
 		'companionSpec': companionSpec,
 		'selectedMass': A,
-		'title': HTMLement(A, chargeState, species)
+		'title': HTMLement(A, chargeState, species),
+		'minX': minX,
+		'maxX': maxX,
+		'minY': minY,
+		'maxY': maxY
 	}
 }
 
@@ -335,14 +353,16 @@ function plotAcceptanceRegion(divID){
 	    	pointSize: 3,
 	    	highlightCircleSize: 2,
 	    	digitsAfterDecimal: 5,
+	    	dateWindow: [data.minX, data.maxX], //dateWindow == dygraph's busineess logic term for 'x range'.
 	    	axes: {
 	    		x:{
-	    			pixelsPerLabel: 30,
+	    			pixelsPerLabel: 50,
 	    			axisLabelFormatter: function(number, granularity, opts, dygraph){
 	    				return number.toFixed(3);
 	    			}
 	    		},
 	    		y:{
+	    			valueRange: [data.minY, data.maxY],
 	    			axisLabelWidth: 100,
 	    			axisLabelFormatter: function(number, granularity, opts, dygraph){
 	    				return number.toFixed(3);
