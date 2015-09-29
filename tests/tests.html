@@ -2,7 +2,7 @@
 <html>
     <head>
         <meta charset="utf-8">
-        <title>helper.js testing</title>
+        <title>Beam Companion Explorer Testing</title>
         <link rel="stylesheet" href="../css/qunit.css">
     </head>
     <body>
@@ -11,8 +11,14 @@
         <script src="../scripts/qunit.js"></script>
         <script src='../scripts/datastore.js' type="text/javascript"></script>
         <script src="../scripts/helpers.js"></script>
+        <script src="../scripts/strippingFoil.js"></script>
 
         <script>
+            //////////////////////////////////////////////////////
+            // Helper testing
+            //////////////////////////////////////////////////////
+
+            QUnit.module('helpers')
             QUnit.test( "species2z", function( assert ) {
                 assert.equal(species2z('H'), 1, 'H has Z=1');
                 assert.equal(species2z('Ca'), 20, 'Ca has Z=20');
@@ -42,10 +48,12 @@
             });
 
             QUnit.test( "determineAQ", function( assert ) {
+                var energyLoss = dataStore.energyLoss
                 dataStore.energyLoss = -10;
                 assert.equal(determineAQ(50, 8), (50-8*dataStore.eMass)/8, 'correct behavior with negative energy loss');
                 dataStore.energyLoss = 100;
                 assert.equal(determineAQ(50, 8), 0, 'correct behavior with positive energy loss');
+                dataStore.energyLoss = energyLoss;
             });
 
             QUnit.test( "validChargeStates", function( assert ) {
@@ -106,7 +114,83 @@
 
                 //past drip line
                 assert.deepEqual(findDecayChain(2, 11), [], 'past drip line returns empty array');
-            });            
+            });
+
+            //////////////////////////////////////////////////////////
+            // Case study: 63-Co
+            // select 9+ state after CSB
+            // select 18+ state after stripping foil
+            //////////////////////////////////////////////////////////
+            QUnit.module('63-Co')
+
+            //1. 63-Cu should be a stable companion of 63-Co, not found in the CSB.
+            QUnit.test( "63-Cu present as stable companion", function( assert ) {
+                var companions = listStableCompanions(9, dataStore.masses[27][''+63], 18);
+                var i, isCu;
+
+                //not in the CSB
+                isCu = false;
+                for(i=0; i<companions[0].length; i++){
+                    if(companions[0][i].compA == 63 && companions[i].compZ == 29)
+                        isCu = true;
+                }
+                assert.notOk(isCu, '63-Cu not found in the CSB.')
+
+                //identified as other stable companion
+                isCu = false;
+                for(i=0; i<companions[1].length; i++){
+                    if(companions[1][i].compA == 63 && companions[1][i].compZ == 29)
+                        isCu = true;
+                }
+                assert.ok(isCu, '63-Cu identified as stable companion.')
+            });
+
+
+
+            //2. 63-Ni should be present as a decay daughter of 63-Co.
+            QUnit.test( "63-Ni present in decay chain from 63-Co", function( assert ){
+                var decayChain = findDecayChain(27, 63);
+                var i, isNi;
+
+                isNi = false;
+                for(i=0; i<decayChain.length; i++){
+                    if(decayChain[i].A == 63 && decayChain[i].Z == 28)
+                        isNi = true
+                }
+
+                assert.ok(isNi, '63-Ni identified in decay chain from 63-Co')
+            });
+
+
+
+            //3. 63-Ga should be present from surface ionization.
+            QUnit.test( "63-Ga present as surface ionization isobar", function( assert ){
+                var surfaceIons = findSurfaceIonIsobars(63);
+                var i, isGa;
+
+                isGa = false;
+                for(i=0; i<surfaceIons.length; i++){
+                    if(surfaceIons[i].A == 63 && surfaceIons[i].Z == 31)
+                        isGa = true
+                }
+
+                assert.ok(isGa, '63-Ga identified as surface ionization product for A==63')
+            });
+
+
+            //4. 63-Zn should be present as a decay daughter of 63-Ga.
+            QUnit.test( "63-Zn present in decay chain from 63-Ga", function( assert ){
+                var decayChain = findDecayChain(31, 63);
+                var i, isZn;
+
+                isZn = false;
+                for(i=0; i<decayChain.length; i++){
+                    if(decayChain[i].A == 63 && decayChain[i].Z == 30)
+                        isZn = true
+                }
+
+                assert.ok(isZn, '63-Zn identified in decay chain from 63-Ga')
+            });
         </script>
       </body>
 </html>

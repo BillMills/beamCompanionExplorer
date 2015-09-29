@@ -1,5 +1,5 @@
 // =========================
-// dygraphs auxilary
+// dygraphs auxiliary
 // =========================
 
 function savePlot(id, linkPrefix, imgPrefix){
@@ -90,13 +90,13 @@ function chargeStateArray(Zs, beamEnergy){
 // =========================
 
 function species2z(species){
-	chem = chemCase(species);
+	var chem = chemCase(species);
 	return dataStore.elements.indexOf(chem); 
 }
 
 function chemCase(word){
 	//take a string and ensure that the first, and only the first, character is capitalized.
-	str = word.toLowerCase()
+	var str = word.toLowerCase()
 	return str.charAt(0).toUpperCase() + str.slice(1);
 }
 

@@ -15,6 +15,7 @@ function auxilaryFoilData(data){
 	//and generate information needed for plots
 	for(i=0; i<chargeStates.length; i++){
 		stableCompanions = listStableCompanions(qOriginal, beamMass, chargeStates[i].q);
+		console.log(chargeStates[i], stableCompanions[1])
 		chargeStates[i]['csbCompanions'] = stableCompanions[0];
 		chargeStates[i]['otherCompanions'] = stableCompanions[1];
 		surfaceIonCompanions = listSurfaceIonCompanions(qOriginal, A, beamMass, chargeStates[i].q);
