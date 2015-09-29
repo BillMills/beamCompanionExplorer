@@ -279,6 +279,37 @@ function findSurfaceIonIsobars(A){
 
 }
 
+function findDecayChain(Z, A){
+	//for a species with Z and A, identify beta decay chain daughters
+	//examines isobars with Z+-1, moves to the lightest, terminates when both neighbours are heavier.
+
+	var i;
+	var daughters = []
+	var z = Z;
+
+	while(	dataStore.masses[z+1][''+(A)] < dataStore.masses[z][''+(A)] ||
+			dataStore.masses[z-1][''+(A)] < dataStore.masses[z][''+(A)])
+	{
+		if(dataStore.masses[z+1][''+(A)] < dataStore.masses[z][''+(A)]){
+			daughters.push({
+				Z: z+1,
+				A: A
+			});
+			z++;
+		} else if (dataStore.masses[z-1][''+(A)] < dataStore.masses[z][''+(A)]){
+			daughters.push({
+				Z: z-1,
+				A: A
+			});
+			z--;			
+		}
+	}
+
+	return daughters;
+}
+
+
+
 
 
 

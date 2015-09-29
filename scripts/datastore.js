@@ -13,7 +13,8 @@ dataStore.plots = {};
 dataStore.colors = {
     'Selected': "rgba(34, 49, 63, 0.5)", 
     'Stable': "rgba(1, 152, 117, 0.5)",
-    'Surface': "rgba(246, 71, 71, 0.5)"
+    'Surface': "rgba(246, 71, 71, 0.5)",
+    'Decay': "rgba(51, 110, 123, 0.5)"
 }
 
 // Z of contaminant species living in the CSB liners

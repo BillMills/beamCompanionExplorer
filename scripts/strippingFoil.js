@@ -18,7 +18,7 @@ function auxilaryFoilData(data){
 		chargeStates[i]['csbCompanions'] = stableCompanions[0];
 		chargeStates[i]['otherCompanions'] = stableCompanions[1];
 		surfaceIonCompanions = listSurfaceIonCompanions(qOriginal, A, beamMass, chargeStates[i].q);
-		determinePlotParameters(chargeStates[i].q, A, data.species, stableCompanions[0], surfaceIonCompanions, chargeStates[i].AQprecise, AQoriginal)
+		determinePlotParameters(chargeStates[i].q, qOriginal, A, data.species, stableCompanions[0], surfaceIonCompanions, chargeStates[i].AQprecise, AQoriginal)
 	}
 
 	return {
@@ -119,10 +119,6 @@ function foil_AQselection(finalSelectedAQ, candidates){
 	return passed;
 }
 
-// ==============================
-// determine stable companions
-// ==============================
-
 function listStableCompanions(qOriginal, beamMass, chargeState){
 	//generate two lists: one of CSB-generated stable companions, and one of possible stable companions,
 	//for the post-foil chargeState of an ion with mass beamMass and CSB selected charge qOriginal
@@ -173,10 +169,6 @@ function classifyCompanions(companions){
 	return [csbCompanions, otherCompanions]
 }
 
-// ========================================
-// determine surface ion companions
-// ========================================
-
 function listSurfaceIonCompanions(qOriginal, beamA, beamMass, chargeState){
 	//list the companions generated from surface ionization in the ion chamber
 
@@ -194,11 +186,38 @@ function listSurfaceIonCompanions(qOriginal, beamA, beamMass, chargeState){
 
 }
 
+function listDecayChains(beamA, beamZ, qOriginal, chargeState, surfaceIonData){
+	//find all the decay daughters of the beam, and the surface ions
+	//surfaceIonData per the return of listSirfaceIonCompanions
+	//return formatted as other list* functions
 
-function determinePlotParameters(chargeState, A, species, stableCompanionData, surfaceIonData, SEBTwindowCenter, CSBwindowCenter){
-	//construct input data and parameters for the plot for chargeState charge of the original selection
+	var i, candidates, ionDaughters, CSBcompanions, foilCompanions;
+	var beamMass = dataStore.masses[beamZ][''+beamA];
+	var postCSBselectedAQ = (beamMass - qOriginal*dataStore.eMass)/qOriginal;
+	var postFoilSelectedAQ = determineAQ(beamMass, chargeState);
 
-	var i, CSB, SEBT, seriesFlag, companionSpec,
+	//start with beam daughters
+	candidates = findDecayChain(beamZ, beamA);
+	//add on surface ionization daughters:
+	for(i=0; i<surfaceIonData.length; i++){
+		ionDaughters = findDecayChain(surfaceIonData[i].compZ, surfaceIonData[i].compA);
+		candidates = Array.concat(candidates, ionDaughters)
+	}
+
+	//filter after the CSB
+	CSBcompanions = CSB_AQselection(postCSBselectedAQ, candidates);
+	//filter after the stripping foil
+	foilCompanions = foil_AQselection(postFoilSelectedAQ, CSBcompanions);
+
+	return foilCompanions;
+}
+
+function determinePlotParameters(chargeState, qOriginal, A, species, stableCompanionData, surfaceIonData, SEBTwindowCenter, CSBwindowCenter){
+	//construct input data and parameters for A/Q plot
+	//chargeState == second charge state selected
+	//qOriginal == original charge state selected
+
+	var i, CSB, SEBT, seriesFlag, companionSpec, decayChain,
 		minX, maxX, minY, maxY, CSBwindowWidth, SEBTwindowWidth,
 		series = ['-', 'Selected','Stable']
 		massToCharge = [];
@@ -217,8 +236,14 @@ function determinePlotParameters(chargeState, A, species, stableCompanionData, s
 				}], 0)
 	//add surface ion data
 	if(surfaceIonData.length > 0){
-		massToCharge = appendData(massToCharge, surfaceIonData, series.length-1)
+		massToCharge = appendData(massToCharge, surfaceIonData, series.length-1);
 		series.push('Surface')
+	}
+	//generate and add decay chain data
+	decayChain = listDecayChains(A, dataStore.elements.indexOf(species), qOriginal, chargeState, surfaceIonData)
+	if(decayChain.length > 0){
+		massToCharge = appendData(massToCharge, decayChain, series.length-1);
+		series.push('Decay')
 	}
 
 	//dygraphs expects sorted input

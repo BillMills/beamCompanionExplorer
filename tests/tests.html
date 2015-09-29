@@ -62,6 +62,50 @@
                     'Z': 3
                 }]
                 , 'A=4 has one valid surface ionization isobar, 4-Li');
+            });
+
+            QUnit.test( "findDecayChain", function( assert ) {
+                assert.deepEqual(findDecayChain(20, 54), 
+                [
+                    {
+                        'A': 54,
+                        'Z': 21
+                    },
+                    {
+                        'A': 54,
+                        'Z': 22
+                    },
+                    {
+                        'A': 54,
+                        'Z': 23
+                    },
+                    {
+                        'A': 54,
+                        'Z': 24
+                    }
+                ]
+                , '54-Ca decays through Sc, Ti, V, Cr.');
+
+                //right on drip line
+                assert.deepEqual(findDecayChain(2, 10), 
+                [
+                    {
+                        'A': 10,
+                        'Z': 3
+                    },
+                    {
+                        'A': 10,
+                        'Z': 4
+                    },
+                    {
+                        'A': 10,
+                        'Z': 5
+                    }
+                ]
+                , '10-He decays through Li, Be, B.');
+
+                //past drip line
+                assert.deepEqual(findDecayChain(2, 11), [], 'past drip line returns empty array');
             });            
         </script>
       </body>
