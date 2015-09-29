@@ -79,6 +79,7 @@ function determineIntensityParameters(beamMass, Q, A, species){
 	intensityMax = 1e-13;
 	AQpoints = [];
 	bkgIntensity = [];
+	flags = [];
 
 	for(i=0; dataStore.bkgAQ[i] < AQmax; i++){
 		//omit things off the AQ scale
@@ -89,6 +90,7 @@ function determineIntensityParameters(beamMass, Q, A, species){
 		//log intensities and corresponding A/Q values in range, keep minimum and maximum intensity updated
 		AQpoints.push(dataStore.bkgAQ[i]);
 		bkgIntensity.push(dataStore.bkgIntensity[i]);
+		flags.push(0)
 		if(dataStore.bkgIntensity[i] < intensityMin){
 			intensityMin = dataStore.bkgIntensity[i];
 		} else if(dataStore.bkgIntensity[i] > intensityMax){
@@ -102,7 +104,7 @@ function determineIntensityParameters(beamMass, Q, A, species){
 
 	//log data for consumption by dygraphs later
 	dataStore.plotData[A+species+Q] = {
-		'data': arrangePoints(AQpoints, bkgIntensity),
+		'data': arrangePoints(AQpoints, bkgIntensity, flags),
 		'magLow': magLow,
 		'magHigh': magHigh,
 		'yMin': intensityMin/10,
