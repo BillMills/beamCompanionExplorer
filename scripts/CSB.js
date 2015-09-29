@@ -16,6 +16,7 @@ function auxilaryCSBdata(data){
 		chargeStates[i]['csbCompanions'] = companions[0];
 		chargeStates[i]['otherCompanions'] = companions[1];
 		determineIntensityParameters(beamMass, chargeStates[i].q, A, data.species);
+		chargeStates[i]['meanCurrent'] = meanCurrent(A, chargeStates[i].q, data.species).toPrecision(3);
 	}
 
 	return {'chargeStates': chargeStates }
@@ -111,8 +112,29 @@ function determineIntensityParameters(beamMass, Q, A, species){
 		'yMax': intensityMax*10,
 		'title' : HTMLement(A, Q, species)
 	}
+}
 
+function meanCurrent(A, Q, species){
+	//calculate the mean current in the magnet acceptance window for this species.
 
+	var magLow = dataStore.plotData[A+species+Q].magLow;
+	var magHigh = dataStore.plotData[A+species+Q].magHigh;
+	var data = dataStore.plotData[A+species+Q].data;
+	var i, thisAQ, thisCurrent, meanCurrent, nPoints;
+
+	meanCurrent = 0;
+	nPoints = 0;
+	for(i=0; i<data.length; i++){
+		thisAQ = data[i][0];
+		thisCurrent = data[i][1];
+		if(thisAQ > magLow && thisAQ < magHigh){
+			meanCurrent += thisCurrent;
+			nPoints++;
+		}
+	}
+
+	nPoints = Math.max(nPoints, 1);
+	return meanCurrent / nPoints;
 }
 
 function drawAQvsIntensity(divID){
