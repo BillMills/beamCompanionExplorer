@@ -113,6 +113,10 @@ td{
 	font-weight: normal;
 }
 
+.legend span b span{
+	display: none;
+}
+
 div.references a{
 	color: #367FA9;
 }

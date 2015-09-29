@@ -10,12 +10,20 @@ dataStore.liner = 'aluminium' // any key of dataStore.linerSpecies
 dataStore.AQfwhm = 0.001 //relative fwhm error on A/Q
 dataStore.plotData = {};
 dataStore.plots = {};
+dataStore.colors = {
+    'Selected': "rgba(34, 49, 63, 0.5)", 
+    'Stable': "rgba(1, 152, 117, 0.5)",
+    'Surface': "rgba(246, 71, 71, 0.5)"
+}
 
 // Z of contaminant species living in the CSB liners
 dataStore.linerSpecies = {
 	"aluminium": [1,2,6,7,8,9,10,12,13,17,18,22,24,26,28,30,31,33,34,35,36,42,47,49,50,54,55],
 	"stainlessSteel": [1,2,6,7,8,9,10,12,13,17,18,22,24,26,28,30,31,33,34,35,36,42,47,49,50,54,55]
 }
+
+//atomic numbers of surface ionization beam contaminants
+dataStore.surfaceIonSpecies = [3,11,19,21,22,29,31,37,38,39,49,55,56,57,58,59,60,61,62,63,64,65,66,67,68,69,70,71,72,81,87,88,89]
 
 // array index Z corresponds to symbol.
 dataStore.elements = ["n","H","He","Li","Be","B","C","N","O","F","Ne","Na","Mg","Al","Si","P","S","Cl","Ar","K","Ca","Sc","Ti","V","Cr","Mn","Fe","Co","Ni","Cu","Zn","Ga","Ge","As","Se","Br","Kr","Rb","Sr","Y","Zr","Nb","Mo","Tc","Ru","Rh","Pd","Ag","Cd","In","Sn","Sb","Te","I","Xe","Cs","Ba","La","Ce","Pr","Nd","Pm","Sm","Eu","Gd","Tb","Dy","Ho","Er","Tm","Yb","Lu","Hf","Ta","W","Re","Os","Ir","Pt","Au","Hg","Tl","Pb","Bi","Po","At","Rn","Fr","Ra","Ac","Th","Pa","U","Np","Pu","Am","Cm","Bk","Cf","Es","Fm","Md","No","Lr","Rf","Db","Sg","Bh","Hs","Mt","Uun","Uuu","Uub","H","He","Li","Be","B","C","N","O","F","Ne","Na","Mg","Al","Si","P","S","Cl","Ar","K","Ca","Sc","Ti","V","Cr","Mn","Fe","Co","Ni","Cu","Zn","Ga","Ge","As","Se","Br","Kr","Rb","Sr","Y","Zr","Nb","Mo","Tc","Ru","Rh","Pd","Ag","Cd","In","Sn","Sb","Te","I","Xe","Cs","Ba","La","Ce","Pr","Nd","Pm","Sm","Eu","Gd","Tb","Dy","Ho","Er","Tm","Yb","Lu","Hf","Ta","W","Re","Os","Ir","Pt","Au","Hg","Tl","Pb","Bi","Po","At","Rn","Fr","Ra","Ac","Th","Pa","U","Np","Pu","Am","Cm","Bk","Cf","Es","Fm","Md","No","Lr","Rf","Db","Sg","Bh","Hs","Mt","Uun","Uuu","Uub","H","He","Li","Be","B","C","N","O","F","Ne","Na","Mg","Al","Si","P","S","Cl","Ar","K","Ca","Sc","Ti","V","Cr","Mn","Fe","Co","Ni","Cu","Zn","Ga","Ge","As","Se","Br","Kr","Rb","Sr","Y","Zr","Nb","Mo","Tc","Ru","Rh","Pd","Ag","Cd","In","Sn","Sb","Te","I","Xe","Cs","Ba","La","Ce","Pr","Nd","Pm","Sm","Eu","Gd","Tb","Dy","Ho","Er","Tm","Yb","Lu","Hf","Ta","W","Re","Os","Ir","Pt","Au","Hg","Tl","Pb","Bi","Po","At","Rn","Fr","Ra","Ac","Th","Pa","U","Np","Pu","Am","Cm","Bk","Cf","Es","Fm","Md","No","Lr","Rf","Db","Sg","Bh","Hs","Mt","Uun","Uuu","Uub"]

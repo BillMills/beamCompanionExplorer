@@ -1,5 +1,5 @@
 // =========================
-// plot to png wrangling
+// dygraphs auxilary
 // =========================
 
 function savePlot(id, linkPrefix, imgPrefix){
@@ -52,8 +52,41 @@ function getBase64Image(img) {
     return canvas.toDataURL();
 }
 
+function chargeStateArray(Zs, beamEnergy){
+	//generate an array of points for Dygraphs to plot describing the charge state fraction for the element in question
+	//Zs is an array of Z values to generate points for.
+
+	var points = [];
+	var thisPoint = [];
+	var qMin = 1000;
+	var qMax = 0;
+	var i, j, qCenter, qWidth;
+
+	//determine a sensible maximum range of data
+	for(i=0; i<Zs.length; i++){
+		qCenter = meanChargeState(Zs[i], dataStore.beamEnergy);
+		qWidth = chargeStateWidth(Zs[i], dataStore.beamEnergy);
+
+		qMin = Math.min(qMin, qCenter - 5*qWidth);
+		qMax = Math.max(qMax, qCenter + 5*qWidth);
+	}
+	qMin = Math.floor(qMin);
+	qMax = Math.ceil(qMax)
+
+	for(i=qMin; i<qMax; i++){
+		thisPoint = [i];
+		for(j=0; j<Zs.length; j++){
+			thisPoint.push(chargeStateFraction(Zs[j], beamEnergy, i))
+		}
+		points.push(thisPoint);
+	}
+
+	return points;
+
+}
+
 // =========================
-// helpers
+// generic helpers
 // =========================
 
 function species2z(species){
@@ -67,13 +100,39 @@ function chemCase(word){
 	return str.charAt(0).toUpperCase() + str.slice(1);
 }
 
-function arrangePoints(x, y){
+function arrangePoints(x, y, flags){
 	//take two equal length arrays x, y and return an array of points suitable for dygraphs, ie
 	// [ [x[0], y[0]], [x[1], y[1]]...  ]
-	var i, data = []
+	//flags is another array indicating different data series; 
+	//for every distinct flag, there will be another column in the inner arrays; a given column will contain only values sharing a flag, or null.
+	// example: arrangePoints( [0,1,2,3], [10,11,12,13], [1,2,1,2]) returns:
+	// [
+	// 		[0,10,null],
+	// 		[1,null,11],
+	//      [2,12,null],
+	//      [3,null,13] 
+	// ]
+
+	var copyFlags = []
+	var uniqueFlags;
+	var i, j, series, data = [];
+	var row = [];
+
+	for(i=0; i<flags.length; i++){
+		copyFlags.push(flags[i]);
+	}
+	uniqueFlags = Array.from(new Set(flags.sort()));
 
 	for(i=0; i<x.length; i++){
-		data[data.length] = [x[i], y[i]];
+		row = [x[i]];
+		series = uniqueFlags.indexOf(copyFlags[i]);
+		for(j=0; j<uniqueFlags.length; j++){
+			if(j == series)
+				row.push(y[i]);
+			else
+				row.push(null);
+		}
+		data.push(row);
 	}
 
 	return data;
@@ -145,3 +204,87 @@ function validChargeStates(Z, beamMass){
 
 	return chargeStates;
 }
+
+function chargeStateFraction(Z, beamEnergy, q){
+	//Y. Baudinet-Robinet, Nucl. Instrum. Methods 190, 197 (1981)
+	//what charge state fraction (in %) will Z ions of charge q occupy, with a beam of beamEnergy MeV/nucleon?
+
+	var j, fraction, sum, height, s, meanQ;
+
+	s = chargeStateWidth(Z, beamEnergy);
+	meanQ = meanChargeState(Z, beamEnergy);
+
+	j = 0;
+	fraction = 0;
+	sum = 0;
+
+	while(fraction < 0.001){
+		fraction = Math.exp((-1.0*(Math.pow(j-meanQ,2)))/(2.0*s*s));
+		j++;
+	}
+
+	while(fraction >= 0.001){
+     	fraction = Math.exp((-1.0*(Math.pow(j-meanQ,2)))/(2.0*s*s));
+     	sum += fraction;
+     	j++;		
+	}
+
+  	// Sum of charge state fractions must equal 1.0 so normalize the height of the mean charge state fraction appropriately.
+  	height = 1/sum;
+ 	fraction = height*Math.exp((-1.0*(Math.pow(q-meanQ,2)))/(2.0*s*s));
+  	fraction *= 100;
+
+  	return fraction;
+}
+
+function meanChargeState(Z, beamEnergy){
+	//V.S. Nikolaev and I.S. Dmitriev, Phys. Lett. A28, 277 (1968)
+
+	var x, meanQ;
+
+	x = 3.86*Math.sqrt(beamEnergy)/Math.pow(Z,0.45);
+	meanQ = Z*Math.pow( (1+Math.pow(x,(-1/0.6))), -0.6);
+
+	return meanQ
+
+}
+
+function chargeStateWidth(Z, beamEnergy){
+	//V.S. Nikolaev and I.S. Dmitriev, Phys. Lett. A28, 277 (1968)
+
+	var meanQ = meanChargeState(Z, beamEnergy)
+	return 0.5*Math.pow( (meanQ*(1-Math.pow( (meanQ/Z), (1/0.6)))), 0.5); // for Z>20 <-- what about Z <=20?
+}
+
+function findSurfaceIonIsobars(A){
+	//for a beam species with atomic mass A, find possible surface ionization isobars
+	//return as an array of objects ex [{A:4, Z:2}, .....]
+	//todo: will currently return absurd nuclei, 100-Li; be aware of drip lines
+
+	var i, Z;
+	var surfaceIons = [];
+
+	for(i=0; i<dataStore.surfaceIonSpecies.length; i++){
+		Z = dataStore.surfaceIonSpecies[i];
+		if(Z > A)
+			break;
+
+		surfaceIons.push({
+			'Z': Z,
+			'A': A
+		});
+	}
+
+	return surfaceIons
+
+}
+
+
+
+
+
+
+
+
+
+

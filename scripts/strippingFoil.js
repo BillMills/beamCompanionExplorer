@@ -1,6 +1,6 @@
 function auxilaryFoilData(data){
 
-	var A, Z, qOriginal, chargeStates, beamMass, i, companions, AQoriginal;
+	var A, Z, qOriginal, chargeStates, beamMass, i, stableCompanions, surfaceIonCompanions, AQoriginal;
 
 	A = parseInt(data.A);
 	Z = species2z(data.species);
@@ -14,10 +14,11 @@ function auxilaryFoilData(data){
 	//for every post-foil charge state, generate both lists of companions and append to the corresponding object,
 	//and generate information needed for plots
 	for(i=0; i<chargeStates.length; i++){
-		companions = listCompanions(qOriginal, beamMass, chargeStates[i].q);
-		chargeStates[i]['csbCompanions'] = companions[0];
-		chargeStates[i]['otherCompanions'] = companions[1];
-		determinePlotParameters(chargeStates[i].q, A, data.species, companions[0], chargeStates[i].AQprecise, AQoriginal)
+		stableCompanions = listStableCompanions(qOriginal, beamMass, chargeStates[i].q);
+		chargeStates[i]['csbCompanions'] = stableCompanions[0];
+		chargeStates[i]['otherCompanions'] = stableCompanions[1];
+		surfaceIonCompanions = listSurfaceIonCompanions(qOriginal, A, beamMass, chargeStates[i].q);
+		determinePlotParameters(chargeStates[i].q, A, data.species, stableCompanions[0], surfaceIonCompanions, chargeStates[i].AQprecise, AQoriginal)
 	}
 
 	return {
@@ -52,218 +53,173 @@ function beamChargeStates(Z, beamMass, qOriginal){
 	return chargeStates
 }
 
-function chargeStateFraction(Z, beamEnergy, q){
-	//Y. Baudinet-Robinet, Nucl. Instrum. Methods 190, 197 (1981)
-	//what charge state fraction (in %) will Z ions of charge q occupy, with a beam of beamEnergy MeV/nucleon?
+function CSB_AQselection(selectedAQ, candidates){
+	//selectedAQ: A/Q selected after the CSB
+	//candidates: array of objects {A: atomic mass, Z: atomic number} describing the full set of companion candidates to consider
+	//returns an array of objects {A: atomic mass, Z: atomic number, Q: charge state} describing the companions able to pass this selection.
 
-	var j, fraction, sum, height, s, meanQ;
-
-	s = chargeStateWidth(Z, beamEnergy);
-	meanQ = meanChargeState(Z, beamEnergy);
-
-	j = 0;
-	fraction = 0;
-	sum = 0;
-
-	while(fraction < 0.001){
-		fraction = Math.exp((-1.0*(Math.pow(j-meanQ,2)))/(2.0*s*s));
-		j++;
-	}
-
-	while(fraction >= 0.001){
-     	fraction = Math.exp((-1.0*(Math.pow(j-meanQ,2)))/(2.0*s*s));
-     	sum += fraction;
-     	j++;		
-	}
-
-  	// Sum of charge state fractions must equal 1.0 so normalize the height of the mean charge state fraction appropriately.
-  	height = 1/sum;
- 	fraction = height*Math.exp((-1.0*(Math.pow(q-meanQ,2)))/(2.0*s*s));
-  	fraction *= 100;
-
-  	return fraction;
-}
-
-function meanChargeState(Z, beamEnergy){
-	//V.S. Nikolaev and I.S. Dmitriev, Phys. Lett. A28, 277 (1968)
-
-	var x, meanQ;
-
-	x = 3.86*Math.sqrt(beamEnergy)/Math.pow(Z,0.45);
-	meanQ = Z*Math.pow( (1+Math.pow(x,(-1/0.6))), -0.6);
-
-	return meanQ
-
-}
-
-function chargeStateWidth(Z, beamEnergy){
-	//V.S. Nikolaev and I.S. Dmitriev, Phys. Lett. A28, 277 (1968)
-
-	var meanQ = meanChargeState(Z, beamEnergy)
-	return 0.5*Math.pow( (meanQ*(1-Math.pow( (meanQ/Z), (1/0.6)))), 0.5); // for Z>20 <-- what about Z <=20?
-}
-
-function chargeStateArray(Zs, beamEnergy){
-	//generate an array of points for Dygraphs to plot describing the charge state fraction for the element in question
-	//Zs is an array of Z values to generate points for.
-
-	var points = [];
-	var thisPoint = [];
-	var qMin = 1000;
-	var qMax = 0;
-	var i, j, qCenter, qWidth;
-
-	//determine a sensible maximum range of data
-	for(i=0; i<Zs.length; i++){
-		qCenter = meanChargeState(Zs[i], dataStore.beamEnergy);
-		qWidth = chargeStateWidth(Zs[i], dataStore.beamEnergy);
-
-		qMin = Math.min(qMin, qCenter - 5*qWidth);
-		qMax = Math.max(qMax, qCenter + 5*qWidth);
-	}
-	qMin = Math.floor(qMin);
-	qMax = Math.ceil(qMax)
-
-	for(i=qMin; i<qMax; i++){
-		thisPoint = [i];
-		for(j=0; j<Zs.length; j++){
-			thisPoint.push(chargeStateFraction(Zs[j], beamEnergy, i))
-		}
-		points.push(thisPoint);
-	}
-
-	return points;
-
-}
-
-function listCompanions(qOriginal, beamMass, chargeState){
-	//generate two lists: one of likely companions, and one of possible companions,
-	//for the post-foil chargeState of an ion with mass beamMass and CSB selected charge qOriginal
-
-	var csbCompanions, otherCompanions,
-		companionAQ, companionMass, csbFlag, data, chargeStateAQ,
-		stables, i, j;
-
-	csbCompanions = [];
-	otherCompanions = [];
-	chargeStateAQ = determineAQ(beamMass, chargeState);
-
-	//find stable isotopes that came through the first selection criteria, and loop through
-	stables = stableCompanions(qOriginal, beamMass)
-
-	for(i=0; i<stables.Z.length; i++){
-		companionMass = dataStore.masses[stables.Z[i]][''+stables.A[i]];
-
-		//loop over all possible charge states of the companion:
-		for(j=1; j<stables.Z[i]; j++){
-			companionAQ = determineAQ(companionMass, j);
-
-			if( companionAQ > (chargeStateAQ-(chargeStateAQ*(0.5/25))) && 
-				companionAQ < (chargeStateAQ+(chargeStateAQ*(0.5/25))) //&& 
-				//companionMagnetFilter(stables.A[i], stables.Z[i], beamMass, qOriginal)  //wouldn't be in the companions list if it hadn't already passed the magnet
-			){
-
-				//is this background coming from the CSB?
-				csbFlag = false;
-				if(dataStore.linerSpecies[dataStore.liner].indexOf(stables.Z[i]) != -1){
-					csbFlag = true;
-				}
-
-				data = {
-					'compA': stables.A[i],
-					'compSpecies': dataStore.elements[stables.Z[i]],
-					'compQ': j,
-					'compAQ': companionAQ.toFixed(3),
-					'compAQprecise': companionAQ,
-					'compCSB_AoverQ': (companionMass-j*dataStore.eMass)/stables.Q[i]
-				}
-
-				if(csbFlag)
-					csbCompanions.push(data);
-				else
-					otherCompanions.push(data);
-			}
-		}
-	}
-	return [csbCompanions, otherCompanions];
-}
-
-function stableCompanions(Q, beamMass){
-	//find lists of all stable companions that can sneak through the magnet with the main species & charge state selected
-
-	var i, j, companionMass, companionAQ,
-		stableA, stableZ, stableQ,
-		AQ = (beamMass - Q*dataStore.eMass)/Q;
-
-	stableA = [];
-	stableZ = [];
-	stableQ = [];
+	var i, j, companionMass, companionAQ;
+	var passed = [];
 
 	//loop over all possible stable companions
-	for(i=0; i<dataStore.stableZ.length; i++){
-		companionMass = dataStore.masses[dataStore.stableZ[i]][''+dataStore.stableA[i]]
+	for(i=0; i<candidates.length; i++){
+		companionMass = dataStore.masses[ candidates[i].Z ]['' + candidates[i].A ]
+		if(!companionMass)
+			continue;
 		//loop over charge states for this companion
-		for(j=1; j<dataStore.stableZ[i]; j++){
+		for(j=1; j<candidates[i].Z; j++){
 			companionAQ = (companionMass - j*dataStore.eMass)/j;
 
-			if( (companionAQ > AQ*(1-0.5/dataStore.magnetResolution)) &&
-				(companionAQ < AQ*(1+0.5/dataStore.magnetResolution))
+			if( (companionAQ > selectedAQ*(1-0.5/dataStore.magnetResolution)) &&
+				(companionAQ < selectedAQ*(1+0.5/dataStore.magnetResolution))
 			){
-				stableA.push(dataStore.stableA[i]);
-				stableZ.push(dataStore.stableZ[i]);
-				stableQ.push(j)
+				passed.push({
+					A: candidates[i].A,
+					Z: candidates[i].Z,
+					Q: j
+				})
 			}
 		}
-	}
-
-	return {"A": stableA, "Z": stableZ, "Q": stableQ}
-}
-
-function companionMagnetFilter(compA, compZ, beamMass, Q){
-	//could a companion in the right charge state have passed a magnetic filter for a beam with mass beamMass and selected charge state Q?
-
-	var companionMass, companionAQ, AQ,
-		i,
-		passed = false;
-
-	companionMass = dataStore.masses[compZ][''+compA];
-	AQ = (beamMass - dataStore.eMass*Q) / Q;
-
-	//loop over all possible charge states
-	for(i=1; i<compZ; i++){
-		companionAQ = (companionMass - i*dataStore.eMass)/i;
-		passed = passed || ( (companionAQ > AQ - AQ*(0.5/dataStore.magnetResolution)) && (companionAQ < AQ + AQ*(0.5/dataStore.magnetResolution)) )
 	}
 
 	return passed;
+}
+
+function foil_AQselection(finalSelectedAQ, candidates){
+	//finalSelectedAQ: A/Q selected after the stripping foil
+	//candidates: array of objects {A: atomic mass, Z: atomic number, Q: charge state}
+	//returns: array of objects (see inline).
+
+	var i, j, companionMass, companionAQ,
+		passed = [];
+
+	for(i=0; i<candidates.length; i++){
+		companionMass = dataStore.masses[ candidates[i].Z ]['' + candidates[i].A ];
+
+		//loop over all possible charge states of the companion:
+		for(j=1; j<candidates[i].Z; j++){
+			companionAQ = determineAQ(companionMass, j);
+
+			if( companionAQ > (finalSelectedAQ-(finalSelectedAQ*(0.5/25))) && 
+				companionAQ < (finalSelectedAQ+(finalSelectedAQ*(0.5/25)))  
+			){
+				passed.push({
+					'compA': candidates[i].A,
+					'compZ': candidates[i].Z,
+					'compSpecies': dataStore.elements[candidates[i].Z],
+					'compQ': j,
+					'compAQ': companionAQ.toFixed(3),
+					'compAQprecise': companionAQ,
+					'compCSB_AoverQ': (companionMass-j*dataStore.eMass)/candidates[i].Q
+				})
+			}
+		}
+	}
+
+	return passed;
+}
+
+// ==============================
+// determine stable companions
+// ==============================
+
+function listStableCompanions(qOriginal, beamMass, chargeState){
+	//generate two lists: one of CSB-generated stable companions, and one of possible stable companions,
+	//for the post-foil chargeState of an ion with mass beamMass and CSB selected charge qOriginal
+
+	var postCSBselectedAQ = (beamMass - qOriginal*dataStore.eMass)/qOriginal;
+	var postFoilSelectedAQ = determineAQ(beamMass, chargeState);
+	var i, CSBcompanions, foilCompanions; 
+	var candidates = [];
+
+	//construct list of all possible stable candidates
+	for(i=0; i<dataStore.stableZ.length; i++){
+		candidates.push({
+			A: dataStore.stableA[i],
+			Z: dataStore.stableZ[i]
+		});
+	}
+
+	//filter after the CSB
+	CSBcompanions = CSB_AQselection(postCSBselectedAQ, candidates);
+	//filter after the stripping foil
+	foilCompanions = foil_AQselection(postFoilSelectedAQ, CSBcompanions);
+
+	return classifyCompanions(foilCompanions);
 
 }
 
-function determinePlotParameters(chargeState, A, species, companionData, SEBTwindowCenter, CSBwindowCenter){
-	//construct input data and parameters for the plot for chargeState charge of the original selection
+function classifyCompanions(companions){
+	//companions: stable companions passing the foil_AQselection, arranged as returned by that function.
+	//reurns: two arrays, of CSB-generated and non-CSB-generated stable backgrounds.
 
-	var i, CSB, SEBT, companionSpec,
-		minX, maxX, minY, maxY, CSBwindowWidth, SEBTwindowWidth
-		massToCharge = [];
+	var i, csbFlag;
+	var csbCompanions = [];
+	var otherCompanions = [];
 
-	for(i=0; i<companionData.length; i++){
-		massToCharge.push({
-			CSB: companionData[i].compCSB_AoverQ,
-			SEBT: companionData[i].compAQprecise,
-			species: companionData[i].compSpecies,
-			A: companionData[i].compA,
-			Q: companionData[i].compQ
-		})
+	for(i=0; i<companions.length; i++){
+		//is this background coming from the CSB?
+		csbFlag = false;
+		if(dataStore.linerSpecies[dataStore.liner].indexOf(companions[i].compZ) != -1){
+			csbFlag = true;
+		}
+
+		if(csbFlag)
+			csbCompanions.push(companions[i]);
+		else
+			otherCompanions.push(companions[i]);
 	}
 
-	//add the species of interest to the list
-	massToCharge.push({
-		CSB: CSBwindowCenter,
-		SEBT: SEBTwindowCenter,
-		species: species,
-		A: A,
-		Q: chargeState
-	});
+	return [csbCompanions, otherCompanions]
+}
+
+// ========================================
+// determine surface ion companions
+// ========================================
+
+function listSurfaceIonCompanions(qOriginal, beamA, beamMass, chargeState){
+	//list the companions generated from surface ionization in the ion chamber
+
+	var postCSBselectedAQ = (beamMass - qOriginal*dataStore.eMass)/qOriginal;
+	var postFoilSelectedAQ = determineAQ(beamMass, chargeState);
+	var i, CSBcompanions, foilCompanions; 
+	var candidates = findSurfaceIonIsobars(beamA);
+
+	//filter after the CSB
+	CSBcompanions = CSB_AQselection(postCSBselectedAQ, candidates);
+	//filter after the stripping foil
+	foilCompanions = foil_AQselection(postFoilSelectedAQ, CSBcompanions);
+
+	return foilCompanions;
+
+}
+
+
+function determinePlotParameters(chargeState, A, species, stableCompanionData, surfaceIonData, SEBTwindowCenter, CSBwindowCenter){
+	//construct input data and parameters for the plot for chargeState charge of the original selection
+
+	var i, CSB, SEBT, seriesFlag, companionSpec,
+		minX, maxX, minY, maxY, CSBwindowWidth, SEBTwindowWidth,
+		series = ['-', 'Selected','Stable']
+		massToCharge = [];
+
+	//prepare stable companions for plotting
+	massToCharge = appendData(massToCharge, stableCompanionData, 1);
+	//add species of interest to the list
+	massToCharge = appendData(massToCharge, [{
+					'compA': A,
+					'compZ': null,
+					'compSpecies': species,
+					'compQ': chargeState,
+					'compAQ': SEBTwindowCenter.toFixed(3),
+					'compAQprecise': SEBTwindowCenter,
+					'compCSB_AoverQ': CSBwindowCenter
+				}], 0)
+	//add surface ion data
+	if(surfaceIonData.length > 0){
+		massToCharge = appendData(massToCharge, surfaceIonData, series.length-1)
+		series.push('Surface')
+	}
 
 	//dygraphs expects sorted input
 	massToCharge.sort(function(a, b){
@@ -273,17 +229,22 @@ function determinePlotParameters(chargeState, A, species, companionData, SEBTwin
 	    return 0;
 	});
 
-	//extract data back into two arrays:
+	//extract data back into separate arrays:
 	CSB = [];
 	SEBT = [];
+	seriesFlag = [];
 	companionSpec = [];
+
 	for(i=0; i<massToCharge.length; i++){
 		CSB.push(massToCharge[i].CSB);
 		SEBT.push(massToCharge[i].SEBT);
+		seriesFlag.push(massToCharge[i].series);
 		companionSpec.push({
 			A: massToCharge[i].A,
 			Q: massToCharge[i].Q,
 			species: massToCharge[i].species,
+			CSB: massToCharge[i].CSB,
+			SEBT: massToCharge[i].SEBT
 		})
 	}
 
@@ -300,9 +261,12 @@ function determinePlotParameters(chargeState, A, species, companionData, SEBTwin
 	maxY = Math.max(maxY, SEBTwindowCenter + SEBTwindowWidth);
 
 	dataStore.plotData[A+species+chargeState] = {
-		'data': arrangePoints(CSB, SEBT),
+		'data': arrangePoints(CSB, SEBT, seriesFlag),
+		'series': series,
 		'SEBTwindowCenter': SEBTwindowCenter,
+		'SEBTwindowWidth': SEBTwindowWidth,
 		'CSBwindowCenter': CSBwindowCenter,
+		'CSBwindowWidth': CSBwindowWidth,
 		'companionSpec': companionSpec,
 		'selectedMass': A,
 		'title': HTMLement(A, chargeState, species),
@@ -311,6 +275,28 @@ function determinePlotParameters(chargeState, A, species, companionData, SEBTwin
 		'minY': minY,
 		'maxY': maxY
 	}
+}
+
+function appendData(dataSet, newPoints, seriesFlag){
+	//take an array dataSet of objects {CSB: xcoord, SEBT: ycoord, species: Xe, A: atomic mass, Q: charge state, series: seriesFlag}
+	//and append the elements of the array newPoints to it, in the same configuration. newPoints should contain objects
+	//like those returned in a list by foil_AQselection.
+
+	var i, appended = dataSet;
+
+	for(i=0; i<newPoints.length; i++){
+		appended.push({
+			CSB: newPoints[i].compCSB_AoverQ,
+			SEBT: newPoints[i].compAQprecise,
+			species: newPoints[i].compSpecies,
+			A: newPoints[i].compA,
+			Q: newPoints[i].compQ,
+			series: seriesFlag
+		})
+	}
+
+	return appended;
+
 }
 
 function plotAcceptanceRegion(divID){
@@ -331,7 +317,7 @@ function plotAcceptanceRegion(divID){
 	    //style
 	    {
 	    	title: data.title,
-	    	labels: ['CSB-DSB', 'DSB-SEBT'],
+	    	labels: data.series,
 	    	width: width,
 	    	height: height,
 	    	labelsDiv: 'legend' + divID,
@@ -340,9 +326,9 @@ function plotAcceptanceRegion(divID){
 	    		var species = HTMLement(data.companionSpec[row].A, data.companionSpec[row].Q, data.companionSpec[row].species)
 
 	    		if(col == 0)
-		    		return species + ': ' +  seriesName + ': ' + num.toFixed(5);
+		    		return species + ': ' +  'CSB-DSB: ' + num.toFixed(5);
 		    	else 
-		    		return num.toFixed(5);
+		    		return 'DSB-SEBT: ' + num.toFixed(5);
 	    	},
 	    	hideOverlayOnMouseOut: false,
 	    	strokeWidth: 0.0,
@@ -377,55 +363,50 @@ function plotAcceptanceRegion(divID){
 	            canvasContext.fillStyle = "rgba(243, 156, 18, 0.5)";
 
 	            //RFQ pre-buncher A/Q window (x-axis)
-	            xMin = g.toDomXCoord(data.CSBwindowCenter-(data.CSBwindowCenter*(0.5/400)));
-	            xMax = g.toDomXCoord(data.CSBwindowCenter+(data.CSBwindowCenter*(0.5/400)));
+	            xMin = g.toDomXCoord(data.CSBwindowCenter - data.CSBwindowWidth/2 );
+	            xMax = g.toDomXCoord(data.CSBwindowCenter + data.CSBwindowWidth/2 );
 	            canvasContext.fillRect(xMin, area.y, xMax - xMin, area.h);
 
 	            //DSB pre-buncher A/Q window (y-axis)
-	            yMin = g.toDomYCoord(data.SEBTwindowCenter-(data.SEBTwindowCenter*(0.5/200)));
-	            yMax = g.toDomYCoord(data.SEBTwindowCenter+(data.SEBTwindowCenter*(0.5/200)));
+	            yMin = g.toDomYCoord(data.SEBTwindowCenter - data.SEBTwindowWidth/2 );
+	            yMax = g.toDomYCoord(data.SEBTwindowCenter + data.SEBTwindowWidth/2 );
 	            canvasContext.fillRect(area.x, yMin, area.w, yMax-yMin);
            
             },
-            series: {
-            	'DSB-SEBT':{
-		            //draw A/Q elipses around points
-		            
-		            drawPointCallback: function(g, seriesName, canvasContext, cx, cy, color, pointSize){
-		            	var xMin, yMin, xMax, yMax, width, height, x, y;
+            //draw A/Q elipses around points
+            drawPointCallback: function(g, seriesName, canvasContext, cx, cy, color, pointSize){
+            	var xMin, yMin, xMax, yMax, width, height, x, y;
 
-		            	x = g.toDataXCoord(cx);
-		            	y = g.toDataYCoord(cy);
-		          		xMin = g.toDomXCoord(x*(1 - dataStore.AQfwhm));
-		          		xMax = g.toDomXCoord(x*(1 + dataStore.AQfwhm));
-		          		yMin = g.toDomYCoord(y*(1 - dataStore.AQfwhm));
-		          		yMax = g.toDomYCoord(y*(1 + dataStore.AQfwhm));
-		          		width = xMax - xMin;
-		          		height = yMax - yMin;
+            	x = g.toDataXCoord(cx);
+            	y = g.toDataYCoord(cy);
+          		xMin = g.toDomXCoord(x*(1 - dataStore.AQfwhm));
+          		xMax = g.toDomXCoord(x*(1 + dataStore.AQfwhm));
+          		yMin = g.toDomYCoord(y*(1 - dataStore.AQfwhm));
+          		yMax = g.toDomYCoord(y*(1 + dataStore.AQfwhm));
+          		width = xMax - xMin;
+          		height = yMax - yMin;
 
-			            canvasContext.fillStyle = "rgba(1, 152, 117, 0.5)";
-		            	drawEllipse(canvasContext, cx, cy, width, height, true);
-		            },
-		            drawHighlightPointCallback: function(g, seriesName, canvasContext, cx, cy, color, pointSize){
-		            	var xMin, yMin, xMax, yMax, width, height, x, y;
-		            			            	
-		            	x = g.toDataXCoord(cx);
-		            	y = g.toDataYCoord(cy);
+	            canvasContext.fillStyle = dataStore.colors[seriesName];
+            	drawEllipse(canvasContext, cx, cy, width, height, true);
+            },
+            drawHighlightPointCallback: function(g, seriesName, canvasContext, cx, cy, color, pointSize){
+            	var xMin, yMin, xMax, yMax, width, height, x, y;
+            	
+            	x = g.toDataXCoord(cx);
+            	y = g.toDataYCoord(cy);
 
-		          		xMin = g.toDomXCoord(x*(1 - dataStore.AQfwhm));
-		          		xMax = g.toDomXCoord(x*(1 + dataStore.AQfwhm));
-		          		yMin = g.toDomYCoord(y*(1 - dataStore.AQfwhm));
-		          		yMax = g.toDomYCoord(y*(1 + dataStore.AQfwhm));
-		          		width = xMax - xMin;
-		          		height = yMax - yMin;
+          		xMin = g.toDomXCoord(x*(1 - dataStore.AQfwhm));
+          		xMax = g.toDomXCoord(x*(1 + dataStore.AQfwhm));
+          		yMin = g.toDomYCoord(y*(1 - dataStore.AQfwhm));
+          		yMax = g.toDomYCoord(y*(1 + dataStore.AQfwhm));
+          		width = xMax - xMin;
+          		height = yMax - yMin;
 
-		          		canvasContext.clearRect(0, 0, canvasContext.canvas.width, canvasContext.canvas.height);
-			            canvasContext.fillStyle = "rgba(102, 51, 153, 0.5)";
-		            	drawEllipse(canvasContext, cx, cy, width, height, true);
+          		canvasContext.clearRect(0, 0, canvasContext.canvas.width, canvasContext.canvas.height);
+	            canvasContext.fillStyle = "rgba(102, 51, 153, 0.5)";
+            	drawEllipse(canvasContext, cx, cy, width, height, true);
 
-		            }
-		        }
-	        }
+            }
 	    }
 	);
 
@@ -433,9 +414,17 @@ function plotAcceptanceRegion(divID){
 
 }
 
+
+
+
+// ==================================
+// charge state distributions
+// ==================================
+
 function identifyIsobars(mass, candidates){
 	//candidates == array of objects: {A, Q, species}
 	//returns array of Z values of candidates isobaric to mass.
+	//depricated: want everything in overlap region, not just isobars
 
 	var i;
 	var isobarZ = []
@@ -445,8 +434,26 @@ function identifyIsobars(mass, candidates){
 			isobarZ.push(dataStore.elements.indexOf(candidates[i].species));
 		}
 	}
-
 	return isobarZ.sort()
+}
+
+function identifyContaminants(candidates, CSBmin, CSBmax, SEBTmin, SEBTmax){
+	//candidates == array of objects: {A, Q, species}
+	//returns array of Z values of candidates that fall within the CSB and SEBT acceptance windows
+
+	var i, contaminants = [];
+
+	for(i=0; i<candidates.length; i++){
+		if(
+			candidates[i].CSB < CSBmax && candidates[i].CSB > CSBmin &&
+			candidates[i].SEBT < SEBTmax && candidates[i].SEBT > SEBTmin
+		){
+			contaminants.push( dataStore.elements.indexOf(candidates[i].species) );
+		}
+	}
+
+	return Array.from(new Set(contaminants.sort())) // sorted array of unique Z values.
+
 }
 
 function generateElementLabels(Zs){
@@ -466,7 +473,8 @@ function plotCSF(divID){
 	//generate dygraph plotting charge state fractions for isobars of interest
 
 	var data = dataStore.plotData[divID];
-	var Zs = identifyIsobars(data.selectedMass, data.companionSpec);
+	//var Zs = identifyIsobars(data.selectedMass, data.companionSpec);
+	var Zs = identifyContaminants(data.companionSpec, data.CSBwindowCenter - data.CSBwindowWidth/2, data.CSBwindowCenter + data.CSBwindowWidth/2, data.SEBTwindowCenter - data.SEBTwindowWidth/2, data.SEBTwindowCenter + data.SEBTwindowWidth/2)
 	var labels = generateElementLabels(Zs);
 	labels.unshift('Charge State');
 	var width = document.getElementById('wrap'+divID).offsetWidth;

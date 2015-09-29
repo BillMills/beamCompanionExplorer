@@ -26,7 +26,15 @@
             }); 
 
             QUnit.test( "arrangePoints", function( assert ) {
-                assert.deepEqual( arrangePoints([1,2,3],['a', 'b', 'c']), [[1,'a'],[2,'b'],[3,'c']], 'create array of arrays of pairwise elements' );
+                assert.deepEqual(   arrangePoints( [0,1,2,3], [10,11,12,13], [1,2,1,2]), 
+                                    [
+                                         [0,10,null],
+                                         [1,null,11],
+                                         [2,12,null],
+                                         [3,null,13] 
+                                    ],
+                                    'create array of arrays of pairwise elements' 
+                                );
             }); 
 
             QUnit.test( "HTMLement", function( assert ) {
@@ -46,6 +54,14 @@
                     'AQ': ((16 - 3*dataStore.eMass)/3).toFixed(3)
                 }]
                 , '16-O has one valid charge state, the 3+');
+            }); 
+
+            QUnit.test( "findSurfaceIonIsobars", function( assert ) {
+                assert.deepEqual(findSurfaceIonIsobars(4), [{
+                    'A': 4,
+                    'Z': 3
+                }]
+                , 'A=4 has one valid surface ionization isobar, 4-Li');
             });            
         </script>
       </body>
