@@ -334,7 +334,7 @@ function plotAcceptanceRegion(divID){
 	var width = document.getElementById('wrap'+divID).offsetWidth;
 	var height = 32/48*width;
 
-	dataStore.plots[divID] = new Dygraph(
+	dataStore.plots['pngAcceptance'+divID] = new Dygraph(
 	    // containing div
 	    document.getElementById('fig'+divID),
 
@@ -433,6 +433,9 @@ function plotAcceptanceRegion(divID){
 	            canvasContext.fillStyle = "rgba(102, 51, 153, 0.5)";
             	drawEllipse(canvasContext, cx, cy, width, height, true);
 
+            },
+            zoomCallback: function(minDate, maxDate, yRanges){
+            	prepImageSave(divID, 'pngAcceptance', 0);
             }
 	    }
 	);
@@ -508,7 +511,7 @@ function plotCSF(divID, isobarsOnly){
 	var width = document.getElementById('wrap'+divID).offsetWidth;
 	var height = 32/48*width;
 
-	dataStore.plots[divID] = new Dygraph(
+	dataStore.plots['pngCSF'+divID] = new Dygraph(
 	    // containing div
 	    document.getElementById('csf'+divID),
 
@@ -547,7 +550,10 @@ function plotCSF(divID, isobarsOnly){
 	    		y:{
 	    			axisLabelWidth: 100,
 	    		}
-	    	}
+	    	},
+            zoomCallback: function(minDate, maxDate, yRanges){
+            	prepImageSave(divID, 'pngCSF', 0);
+            }
 	    }
 	);
 

@@ -144,7 +144,7 @@ function drawAQvsIntensity(divID){
 	var width = document.getElementById('wrap'+divID).offsetWidth;
 	var height = 32/48*width;
 
-	dataStore.plots[divID] = new Dygraph(
+	dataStore.plots['pngDump'+divID] = new Dygraph(
 	    // containing div
 	    document.getElementById('fig'+divID),
 
@@ -189,6 +189,9 @@ function drawAQvsIntensity(divID){
 	            canvas.font = "16px sans-serif";
 	            canvas.fillStyle = '#000000';
 	            canvas.fillText('Transmitted', xMin, area.y+16);           
+            },
+            zoomCallback: function(minDate, maxDate, yRanges){
+            	prepImageSave(divID, 'pngDump', 0);
             }
 	    }
 	);

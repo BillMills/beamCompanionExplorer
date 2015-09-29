@@ -13,7 +13,7 @@ function savePlot(id, linkPrefix, imgPrefix){
 
 //generate a hidden image and send its data uri to the appropriate place for saving:
 function prepImageSave(id, imgPrefix, legendHeight){
-	var dygraph = dataStore.plots[id];
+	var dygraph = dataStore.plots[imgPrefix + id];
 
 	var options = {
 	    //Texts displayed below the chart's x-axis and to the left of the y-axis 
