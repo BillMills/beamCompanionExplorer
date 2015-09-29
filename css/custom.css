@@ -120,3 +120,7 @@ td{
 div.references a{
 	color: #367FA9;
 }
+
+input[type='radio']{
+	margin-left: 1em;
+}

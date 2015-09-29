@@ -449,7 +449,6 @@ function plotAcceptanceRegion(divID){
 function identifyIsobars(mass, candidates){
 	//candidates == array of objects: {A, Q, species}
 	//returns array of Z values of candidates isobaric to mass.
-	//depricated: want everything in overlap region, not just isobars
 
 	var i;
 	var isobarZ = []
@@ -459,7 +458,7 @@ function identifyIsobars(mass, candidates){
 			isobarZ.push(dataStore.elements.indexOf(candidates[i].species));
 		}
 	}
-	return isobarZ.sort()
+	return Array.from(new Set(isobarZ.sort())) // sorted array of unique Z values.
 }
 
 function identifyContaminants(candidates, CSBmin, CSBmax, SEBTmin, SEBTmax){
@@ -494,12 +493,14 @@ function generateElementLabels(Zs){
 	return symbols
 }
 
-function plotCSF(divID){
+function plotCSF(divID, isobarsOnly){
 	//generate dygraph plotting charge state fractions for isobars of interest
 
 	var data = dataStore.plotData[divID];
-	//var Zs = identifyIsobars(data.selectedMass, data.companionSpec);
-	var Zs = identifyContaminants(data.companionSpec, data.CSBwindowCenter - data.CSBwindowWidth/2, data.CSBwindowCenter + data.CSBwindowWidth/2, data.SEBTwindowCenter - data.SEBTwindowWidth/2, data.SEBTwindowCenter + data.SEBTwindowWidth/2)
+	if(isobarsOnly === 'true')
+		var Zs = identifyIsobars(data.selectedMass, data.companionSpec);
+	else
+		var Zs = identifyContaminants(data.companionSpec, data.CSBwindowCenter - data.CSBwindowWidth/2, data.CSBwindowCenter + data.CSBwindowWidth/2, data.SEBTwindowCenter - data.SEBTwindowWidth/2, data.SEBTwindowCenter + data.SEBTwindowWidth/2)
 	var labels = generateElementLabels(Zs);
 	labels.unshift('Charge State');
 	var width = document.getElementById('wrap'+divID).offsetWidth;
@@ -555,10 +556,23 @@ function plotCSF(divID){
 function pageload(){
 	//runs after ultralight is finished setting up the page.
 
+	var i, key, radios;
+
+	//make the plots
 	for(key in dataStore.plotData){
 		plotAcceptanceRegion(key);
-		plotCSF(key);
+		plotCSF(key, 'true');
+
+		//set up some event handlers
+		radios = document['form'+key]['radio'+key];
+		for(i = 0; i < radios.length; i++) {
+		    radios[i].onclick = function() {
+		    	var id = this.id.slice(3);
+		    	plotCSF(id, this.value)
+		    };
+		}
 	}
+
 
 	return 0
 }

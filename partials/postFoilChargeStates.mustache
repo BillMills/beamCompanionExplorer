@@ -25,6 +25,13 @@
 			<img id='pngCSF{{A}}{{species}}{{q}}' class='shhh'></img>
 			<button class='savePlotButton' onclick="savePlot('{{A}}{{species}}{{q}}', 'saveCSF', 'pngCSF')">Save Charge State Fraction Plot</button>
 			<a id='saveCSF{{A}}{{species}}{{q}}' download='isobaricCSF.png' class='shhh'>Save Plot</a>
+
+			<form name="form{{A}}{{species}}{{q}}">
+				<input id='iso{{A}}{{species}}{{q}}' type='radio' name='radio{{A}}{{species}}{{q}}' value='true' checked>
+				<label for='iso{{A}}{{species}}{{q}}'>Isobars Only</label>
+				<input id='all{{A}}{{species}}{{q}}' type='radio' name='radio{{A}}{{species}}{{q}}' value='false'>
+				<label for='all{{A}}{{species}}{{q}}'>All Contaminants</label>
+			</form>
 		</div>
 	</div>
 
