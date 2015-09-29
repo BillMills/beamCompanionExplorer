@@ -12,7 +12,7 @@
 	</div>
 
 
-	<div class='col-md-7'>
+	<div class='col-md-8'>
 		<div id='wrap{{A}}{{species}}{{q}}' class='content figure'>
 			<div id='fig{{A}}{{species}}{{q}}'></div>
 			<div id='legend{{A}}{{species}}{{q}}' class='legend'></div>
@@ -35,7 +35,7 @@
 		</div>
 	</div>
 
-	<div class='col-md-2 content'>
+	<div class='col-md-2 content longListWrapper'>
 		<h4>CSB Product Companions</h4>
 		<table id='csbCompanions{{A}}{{species}}{{q}}'>
 			<tr class='header'>
@@ -57,7 +57,7 @@
 		</table>
 	</div>
 
-	<div class='col-md-2 content longerListWrapper'>
+	<div class='col-md-2 content longListWrapper'>
 		<h4>Other Companions</h4>
 		<table id='otherCompanions{{A}}{{species}}{{q}}'>
 			<tr class='header'>
@@ -79,6 +79,48 @@
 		</table>
 	</div>
 
-	<div class='col-md=1'></div>
+	<div class='col-md-2 content longListWrapper'>
+		<h4>Surface Ionization Products</h4>
+		<table id='ionCompanions{{A}}{{species}}{{q}}'>
+			<tr class='header'>
+				<td>Species</td>
+				<td>A/Q</td>
+			</tr>
+			{{#surfaceIonCompanions}}
+				<tr>
+					<td>
+						<sup>{{compA}}</sup>
+						{{compSpecies}}
+						<sup>{{compQ}}+</sup>
+					</td>
+					<td>
+						{{compAQ}}
+					</td>
+				</tr>
+			{{/surfaceIonCompanions}}
+		</table>
+	</div>
+
+	<div class='col-md-2 content longListWrapper'>
+		<h4>Decay Chain Products</h4>
+		<table id='decayCompanions{{A}}{{species}}{{q}}'>
+			<tr class='header'>
+				<td>Species</td>
+				<td>A/Q</td>
+			</tr>
+			{{#decayChainCompanions}}
+				<tr>
+					<td>
+						<sup>{{compA}}</sup>
+						{{compSpecies}}
+						<sup>{{compQ}}+</sup>
+					</td>
+					<td>
+						{{compAQ}}
+					</td>
+				</tr>
+			{{/decayChainCompanions}}
+		</table>
+	</div>
 
 </div>

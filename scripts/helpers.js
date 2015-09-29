@@ -170,6 +170,24 @@ function drawEllipse(context, centerX, centerY, width, height, fill) {
 	context.closePath();	
 }
 
+function ensureUniqueList(list){
+	//given a list of companions like those returned by the list* functions in stripingFoil.js,
+	//sort + unique that list.
+
+	list.sort(function(a,b){
+		if(a.compZ > b.compZ) return 1;
+		else if(a.compZ < b.compZ) return -1;
+		else return 0
+	})
+	i=0;
+	while(i<list.length-1){
+		if(list[i].compZ == list[i+1].compZ)
+			list.splice(i,1);
+		else
+			i++
+	}
+}
+
 // ==================
 // physics
 // ==================

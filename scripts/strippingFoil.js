@@ -1,6 +1,6 @@
 function auxilaryFoilData(data){
 
-	var A, Z, qOriginal, chargeStates, beamMass, i, stableCompanions, surfaceIonCompanions, AQoriginal;
+	var A, Z, qOriginal, chargeStates, beamMass, i, stableCompanions, Companions, AQoriginal;
 
 	A = parseInt(data.A);
 	Z = species2z(data.species);
@@ -11,14 +11,16 @@ function auxilaryFoilData(data){
 	//what other charge states of the beam species are going to show up after the stripping foil?
 	chargeStates = beamChargeStates(Z, beamMass, qOriginal);
 
-	//for every post-foil charge state, generate both lists of companions and append to the corresponding object,
+	//for every post-foil charge state, generate arrays of possible companions, 
+	//each companion described by an object as layed out in foil_AQselection;
 	//and generate information needed for plots
 	for(i=0; i<chargeStates.length; i++){
 		stableCompanions = listStableCompanions(qOriginal, beamMass, chargeStates[i].q);
 		chargeStates[i]['csbCompanions'] = stableCompanions[0];
 		chargeStates[i]['otherCompanions'] = stableCompanions[1];
-		surfaceIonCompanions = listSurfaceIonCompanions(qOriginal, A, beamMass, chargeStates[i].q);
-		determinePlotParameters(chargeStates[i].q, qOriginal, A, data.species, stableCompanions[0], surfaceIonCompanions, chargeStates[i].AQprecise, AQoriginal)
+		chargeStates[i]['surfaceIonCompanions'] = listSurfaceIonCompanions(qOriginal, A, beamMass, chargeStates[i].q);
+		chargeStates[i]['decayChainCompanions'] = listDecayChains(A, dataStore.elements.indexOf(data.species), qOriginal, chargeStates[i].q, chargeStates[i]['surfaceIonCompanions'])
+		determinePlotParameters(chargeStates[i].q, A, data.species, stableCompanions[0], chargeStates[i]['surfaceIonCompanions'], chargeStates[i]['decayChainCompanions'], chargeStates[i].AQprecise, AQoriginal)
 	}
 
 	return {
@@ -209,13 +211,14 @@ function listDecayChains(beamA, beamZ, qOriginal, chargeState, surfaceIonData){
 	//filter after the stripping foil
 	foilCompanions = foil_AQselection(postFoilSelectedAQ, CSBcompanions);
 
+	ensureUniqueList(foilCompanions)
+
 	return foilCompanions;
 }
 
-function determinePlotParameters(chargeState, qOriginal, A, species, stableCompanionData, surfaceIonData, SEBTwindowCenter, CSBwindowCenter){
+function determinePlotParameters(chargeState, A, species, stableCompanionData, surfaceIonData, decayChainData, SEBTwindowCenter, CSBwindowCenter){
 	//construct input data and parameters for A/Q plot
 	//chargeState == second charge state selected
-	//qOriginal == original charge state selected
 
 	var i, CSB, SEBT, seriesFlag, companionSpec, decayChain,
 		minX, maxX, minY, maxY, CSBwindowWidth, SEBTwindowWidth,
@@ -239,10 +242,9 @@ function determinePlotParameters(chargeState, qOriginal, A, species, stableCompa
 		massToCharge = appendData(massToCharge, surfaceIonData, series.length-1);
 		series.push('Surface')
 	}
-	//generate and add decay chain data
-	decayChain = listDecayChains(A, dataStore.elements.indexOf(species), qOriginal, chargeState, surfaceIonData)
-	if(decayChain.length > 0){
-		massToCharge = appendData(massToCharge, decayChain, series.length-1);
+	//add decay chain data
+	if(decayChainData.length > 0){
+		massToCharge = appendData(massToCharge, decayChainData, series.length-1);
 		series.push('Decay')
 	}
 
