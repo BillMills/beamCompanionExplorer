@@ -357,7 +357,6 @@ function plotAcceptanceRegion(divID){
 		    	else 
 		    		return 'DSB-SEBT: ' + num.toFixed(5);
 	    	},
-	    	hideOverlayOnMouseOut: false,
 	    	strokeWidth: 0.0,
 	    	drawPoints: true,
 	    	xlabel: 'A/Q (First stage, CSB-DSB)',
