@@ -124,3 +124,7 @@ div.references a{
 input[type='radio']{
 	margin-left: 1em;
 }
+
+ol {
+	list-style-type: decimal;
+}

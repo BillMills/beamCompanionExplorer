@@ -3,18 +3,24 @@
 //=======================================
 dataStore = {}
 dataStore.eMass = 0.0005485799; // AMU
-dataStore.magnetResolution = 100; //inverse of resolving power of magnet immediately following CSB
+dataStore.CSBmagnetResolution = 100; //inverse of resolving power of magnet immediately following CSB
+dataStore.magnetAcceptance = 0.5/dataStore.CSBmagnetResolution; //relative half-width of post-CSB A/Q transmission band
+dataStore.DSBmagnetResolution = 25; //inverse of resolving power of DSB magnetic filter
+dataStore.RFQprebuncherResolution = 400 //inverse of resolving power of RFQ prebuncher
+dataStore.DSBprebuncherResolution = 200 // inverse of resolving power of DSB prebuncher
 dataStore.energyLoss = 1.7; //percent energy loss in stripping foil
 dataStore.beamEnergy = 1.5; //MeV / nucleon
 dataStore.liner = 'aluminium' // any key of dataStore.linerSpecies
 dataStore.AQfwhm = 0.001 //relative fwhm error on A/Q
+dataStore.ISACIIminAQ = 4.9
+dataStore.ISACIImaxAQ = 7
 dataStore.plotData = {};
 dataStore.plots = {};
 dataStore.colors = {
-    'Selected': "rgba(34, 49, 63, 0.5)", 
-    'Stable': "rgba(1, 152, 117, 0.5)",
-    'Surface': "rgba(246, 71, 71, 0.5)",
-    'Decay': "rgba(51, 110, 123, 0.5)"
+    'Selected': "rgba(1, 152, 117, 0.5)",//"rgba(34, 49, 63, 0.5)", 
+    'Stable':   "rgba(1, 152, 117, 0.5)",
+    'Surface':  "rgba(1, 152, 117, 0.5)",//"rgba(246, 71, 71, 0.5)",
+    'Decay':    "rgba(1, 152, 117, 0.5)"//"rgba(51, 110, 123, 0.5)"
 }
 
 // Z of contaminant species living in the CSB liners

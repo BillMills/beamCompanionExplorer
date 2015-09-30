@@ -206,7 +206,7 @@ function determineAQ(mass, Q){
 }
 
 function validChargeStates(Z, beamMass){
-	// determine valid charge states and corresponding A/Q, for an element described by Z and beamMass.
+	// determine charge states that can be delivered to ISAC II
 
 	var i, AQ, chargeStates;
 	
@@ -215,7 +215,7 @@ function validChargeStates(Z, beamMass){
 	for(i=1; i<=Z; i++){
 		AQ = (beamMass - i*dataStore.eMass)/i;
 	
-		if( (AQ > 4.9) && (AQ <= 7) ){
+		if( (AQ > dataStore.ISACIIminAQ) && (AQ <= dataStore.ISACIImaxAQ) ){
 			chargeStates.push({"q":i, "AQ":AQ.toFixed(3)});
 		}
 	}

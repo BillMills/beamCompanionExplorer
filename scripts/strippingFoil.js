@@ -25,7 +25,13 @@ function auxilaryFoilData(data){
 
 	return {
 		'chargeStates': chargeStates,
-		'AQoriginal': AQoriginal.toFixed(3)
+		'AQoriginal': AQoriginal.toFixed(3),
+		'liner': dataStore.liner,
+		'CSBmagnetResolution': dataStore.CSBmagnetResolution,
+		'DSBmagnetResolution': dataStore.DSBmagnetResolution,
+		'RFQprebuncherResolution': dataStore.RFQprebuncherResolution,
+		'DSBprebuncherResolution': dataStore.DSBprebuncherResolution,
+		'beamEnergy': dataStore.beamEnergy
 	}
 }
 
@@ -72,8 +78,8 @@ function CSB_AQselection(selectedAQ, candidates){
 		for(j=1; j<candidates[i].Z; j++){
 			companionAQ = (companionMass - j*dataStore.eMass)/j;
 
-			if( (companionAQ > selectedAQ*(1-0.5/dataStore.magnetResolution)) &&
-				(companionAQ < selectedAQ*(1+0.5/dataStore.magnetResolution))
+			if( (companionAQ > selectedAQ*(1-0.5/dataStore.CSBmagnetResolution)) &&
+				(companionAQ < selectedAQ*(1+0.5/dataStore.CSBmagnetResolution))
 			){
 				passed.push({
 					A: candidates[i].A,
@@ -102,8 +108,8 @@ function foil_AQselection(finalSelectedAQ, candidates){
 		for(j=1; j<candidates[i].Z; j++){
 			companionAQ = determineAQ(companionMass, j);
 
-			if( companionAQ > (finalSelectedAQ-(finalSelectedAQ*(0.5/25))) && 
-				companionAQ < (finalSelectedAQ+(finalSelectedAQ*(0.5/25)))  
+			if( companionAQ > (finalSelectedAQ-(finalSelectedAQ*(0.5/dataStore.DSBmagnetResolution))) && 
+				companionAQ < (finalSelectedAQ+(finalSelectedAQ*(0.5/dataStore.DSBmagnetResolution)))  
 			){
 				passed.push({
 					'compA': candidates[i].A,

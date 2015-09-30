@@ -23,12 +23,25 @@
         	{{/chargeStates}}
 
             <div class='sectionWrapper content references'>
+                <h2>Metadata</h2>
+                <ul>
+                    <li>CSB ECR source liner: {{liner}}</li>
+                    <li>Resolving power of the magnet immediately following the CSB: 1/{{CSBmagnetResolution}}</li>
+                </ul>
+                <h2>Discussion</h2>
+                <ul>
+                    <li>Charge states presented are those that can currently be delivered to ISAC II, on grounds that they have an A/Q between {{ISACmin}} and {{ISACmax}}. </li>
+                    <li>Figures indicate the measured charge state booster background intensity as a function of A/Q, in the neighbourhood of the A/Q for the species and charge state of interest; yellow band indicates the A/Q transmission region for the post-CSB filter, centered on this same A/Q. Transmission region width is defined as &#177;{{magnetAcceptance}}% of its central value.</li>
+                    <li><strong>CSB Product Companions</strong> lists stable species and charge states which fall within the A/Q transmission region in the figure and which are <em>known to come from the liner of the charge state booster.</em></li>
+                    <li><strong>Other Companions</strong> lists stable ions with an A/Q value falling within the A/Q transmission region, but which are not know to be present in the CSB liner.</li>
+                </ul>
+
                 <h2>References</h2>
                 <h3>Physics</h3>
-                <ul>
+                <ol>
                     <li>Masses used here to calculate A/Q values are taken from the <a href='http://www.nndc.bnl.gov/masses'>AME2003 atomic mass evaluation</a>.</li>
                     <li>Charge-state booster background intensity measured on August 13th 2012.</li>
-                </ul>
+                </ol>
 
                 <h3>Software</h3>
                 <ul>

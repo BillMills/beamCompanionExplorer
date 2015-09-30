@@ -19,7 +19,14 @@ function auxilaryCSBdata(data){
 		chargeStates[i]['meanCurrent'] = meanCurrent(A, chargeStates[i].q, data.species).toPrecision(3);
 	}
 
-	return {'chargeStates': chargeStates }
+	return {
+		'chargeStates': chargeStates,
+		'liner': dataStore.liner,
+		'CSBmagnetResolution': dataStore.CSBmagnetResolution,
+		'magnetAcceptance': dataStore.magnetAcceptance*100, //ie in percent
+		'ISACmin': dataStore.ISACIIminAQ,
+		'ISACmax': dataStore.ISACIImaxAQ
+	}
 }
 
 function listCompanions(Q, beamMass){
@@ -38,8 +45,8 @@ function listCompanions(Q, beamMass){
 		for(j=1; j<dataStore.stableZ[i]; j++){
 			companionAQ = (companionMass - j*dataStore.eMass)/j;
 
-			if( (companionAQ > AQ*(1-0.5/dataStore.magnetResolution)) &&
-				(companionAQ < AQ*(1+0.5/dataStore.magnetResolution))) {
+			if( (companionAQ > AQ*(1-0.5/dataStore.CSBmagnetResolution)) &&
+				(companionAQ < AQ*(1+0.5/dataStore.CSBmagnetResolution))) {
 
 				//is this companion likely to come from the CSB?
 				csbFlag = false;
@@ -74,8 +81,8 @@ function determineIntensityParameters(beamMass, Q, A, species){
 		magLow, magHigh;										//magnet acceptance
 
 	AQ = (beamMass - Q*dataStore.eMass) / Q;
-	AQmin = AQ*(1 - 1 / dataStore.magnetResolution);
-	AQmax = AQ*(1 + 1 / dataStore.magnetResolution);
+	AQmin = AQ*(1 - 1 / dataStore.CSBmagnetResolution);
+	AQmax = AQ*(1 + 1 / dataStore.CSBmagnetResolution);
 	intensityMin = 1e-6;
 	intensityMax = 1e-13;
 	AQpoints = [];
@@ -100,8 +107,8 @@ function determineIntensityParameters(beamMass, Q, A, species){
 	}
 
 	//determine magnet acceptance region
-	magLow  = AQ*(1 - 0.5 / dataStore.magnetResolution);
-	magHigh = AQ*(1 + 0.5 / dataStore.magnetResolution);
+	magLow  = AQ*(1 - 0.5 / dataStore.CSBmagnetResolution);
+	magHigh = AQ*(1 + 0.5 / dataStore.CSBmagnetResolution);
 
 	//log data for consumption by dygraphs later
 	dataStore.plotData[A+species+Q] = {

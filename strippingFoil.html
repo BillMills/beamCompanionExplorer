@@ -23,13 +23,39 @@
             {{/chargeStates}}
 
             <div class='sectionWrapper content references'>
+                <h2>Metadata</h2>
+                <ul>
+                    <li>CSB ECR source liner: {{liner}}</li>
+                    <li>Resolving power of CSB magnetic filter: 1/{{CSBmagnetResolution}}</li>
+                    <li>Resolving power of DSB magnetic filter: 1/{{DSBmagnetResolution}}</li>
+                    <li>Resolving power of RFQ prebuncher: 1/{{RFQprebuncherResolution}}</li>
+                    <li>Resolving power of DSB prebuncher: 1/{{DSBprebuncherResolution}}</li>
+                    <li>Beam energy: {{beamEnergy}} MeV/nucleon</li>
+                </ul>
+
+                <h2>Discussion</h2>
+                <ul>
+                    <li><strong>A/Q scatterplots</strong> indicate:
+                        <ul>
+                            <li>RFQ pre-buncher A/Q transmission region (vertical band), centered on beam species A/Q post-CSB</li>
+                            <li>DSB pre-buncher A/Q transmission region (horizontal band), centered on selected charge state A/Q post-stripping foil</li>
+                            <li>Ellipses indicate 2&#963 A/Q regions for stable ions, beta decay daughters, and surface ionization products able to pass both CSB and DSB magnetic filters, in addition to the beam species.</li>
+                        </ul>
+                    </li>
+                    <li><strong>Charge State plots</strong> indicate the gaussian charge state distributions for the elements illustrated, per the parameterizations in [2,3]. If 'Isobars Only' is selected (default), only elements with companions isobaric to the beam species are shown; if 'All Contaminants' is selected, a curve is drawn for every element represented in the transmission region of both prebuchers.</li>
+                    <li><strong>CSB Product Companions</strong> lists stable species and charge states which fall within the A/Q transmission region in the figure and which are <em>known to come from the liner of the charge state booster.</em></li>
+                    <li><strong>Other Companions</strong> lists stable ions with an A/Q value falling within the A/Q transmission region, but which are not know to be present in the CSB liner.</li>
+                    <li><strong>Surface Ionization Products</strong> lists beam isobars potentially generated via surface ionization from the ion source.</li>
+                    <li><strong>Decay Chain Products</strong> lists all beta decay chain daughters of both the beam species, and any radioactive species found in the Surface Ionization Products table.</li>
+                </ul>
+
                 <h2>References</h2>
                 <h3>Physics</h3>
-                <ul>
+                <ol>
                     <li>Masses used here to calculate A/Q values are taken from the <a href='http://www.nndc.bnl.gov/masses'>AME2003 atomic mass evaluation</a>.</li>
                     <li>Mean charge states: V.S. Nikolaev and I.S. Dmitriev, Phys. Lett. A28, 277 (1968)</li>
                     <li>Charge state fraction distributions: Y. Baudinet-Robinet, Nucl. Instrum. Methods 190, 197 (1981), <a href='http://dx.doi.org/10.1016/0029-554X(81)90221-4'>doi:10.1016/0029-554X(81)90221-4</a></li>
-                </ul>
+                </ol>
 
                 <h3>Software</h3>
                 <ul>
