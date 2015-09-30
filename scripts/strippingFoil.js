@@ -31,7 +31,8 @@ function auxilaryFoilData(data){
 		'DSBmagnetResolution': dataStore.DSBmagnetResolution,
 		'RFQprebuncherResolution': dataStore.RFQprebuncherResolution,
 		'DSBprebuncherResolution': dataStore.DSBprebuncherResolution,
-		'beamEnergy': dataStore.beamEnergy
+		'beamEnergy': dataStore.beamEnergy,
+		'energyLoss': dataStore.energyLoss
 	}
 }
 
@@ -69,7 +70,7 @@ function CSB_AQselection(selectedAQ, candidates){
 	var i, j, companionMass, companionAQ;
 	var passed = [];
 
-	//loop over all possible stable companions
+	//loop over all candidates
 	for(i=0; i<candidates.length; i++){
 		companionMass = dataStore.masses[ candidates[i].Z ]['' + candidates[i].A ]
 		if(!companionMass)
@@ -103,13 +104,14 @@ function foil_AQselection(finalSelectedAQ, candidates){
 
 	for(i=0; i<candidates.length; i++){
 		companionMass = dataStore.masses[ candidates[i].Z ]['' + candidates[i].A ];
-
+		if(!companionMass)
+			continue;
 		//loop over all possible charge states of the companion:
 		for(j=1; j<candidates[i].Z; j++){
 			companionAQ = determineAQ(companionMass, j);
 
-			if( companionAQ > (finalSelectedAQ-(finalSelectedAQ*(0.5/dataStore.DSBmagnetResolution))) && 
-				companionAQ < (finalSelectedAQ+(finalSelectedAQ*(0.5/dataStore.DSBmagnetResolution)))  
+			if( companionAQ > finalSelectedAQ*(1-(0.5/dataStore.DSBmagnetResolution)) && 
+				companionAQ < finalSelectedAQ*(1+(0.5/dataStore.DSBmagnetResolution))  
 			){
 				passed.push({
 					'compA': candidates[i].A,
@@ -157,20 +159,15 @@ function classifyCompanions(companions){
 	//companions: stable companions passing the foil_AQselection, arranged as returned by that function.
 	//reurns: two arrays, of CSB-generated and non-CSB-generated stable backgrounds.
 
-	var i, csbFlag;
+	var i;
 	var csbCompanions = [];
 	var otherCompanions = [];
 
 	for(i=0; i<companions.length; i++){
 		//is this background coming from the CSB?
-		csbFlag = false;
 		if(dataStore.linerSpecies[dataStore.liner].indexOf(companions[i].compZ) != -1){
-			csbFlag = true;
-		}
-
-		if(csbFlag)
 			csbCompanions.push(companions[i]);
-		else
+		} else
 			otherCompanions.push(companions[i]);
 	}
 
@@ -233,7 +230,7 @@ function determinePlotParameters(chargeState, A, species, stableCompanionData, s
 
 	//prepare stable companions for plotting
 	massToCharge = appendData(massToCharge, stableCompanionData, 1);
-	//add species of interest to the list
+	//add beam species to the list
 	massToCharge = appendData(massToCharge, [{
 					'compA': A,
 					'compZ': null,
@@ -336,7 +333,6 @@ function plotAcceptanceRegion(divID){
 	//generate dygraph plotting A/Q at both selections
 
 	var data = dataStore.plotData[divID];
-
 	var width = document.getElementById('wrap'+divID).offsetWidth;
 	var height = 32/48*width;
 
@@ -456,15 +452,15 @@ function plotAcceptanceRegion(divID){
 // charge state distributions
 // ==================================
 
-function identifyIsobars(mass, candidates){
+function identifyIsobars(A, candidates){
 	//candidates == array of objects: {A, Q, species}
-	//returns array of Z values of candidates isobaric to mass.
+	//returns array of Z values of candidates isobaric to A.
 
 	var i;
 	var isobarZ = []
 
 	for(i=0; i<candidates.length; i++){
-		if(candidates[i].A == mass){
+		if(candidates[i].A == A){
 			isobarZ.push(dataStore.elements.indexOf(candidates[i].species));
 		}
 	}
@@ -472,15 +468,15 @@ function identifyIsobars(mass, candidates){
 }
 
 function identifyContaminants(candidates, CSBmin, CSBmax, SEBTmin, SEBTmax){
-	//candidates == array of objects: {A, Q, species}
+	//candidates == array of objects: {A, Q, species, CSB: 1st A/Q, SEBT: 2nd A/Q}
 	//returns array of Z values of candidates that fall within the CSB and SEBT acceptance windows
 
 	var i, contaminants = [];
 
 	for(i=0; i<candidates.length; i++){
 		if(
-			candidates[i].CSB < CSBmax && candidates[i].CSB > CSBmin &&
-			candidates[i].SEBT < SEBTmax && candidates[i].SEBT > SEBTmin
+			candidates[i].CSB <= CSBmax && candidates[i].CSB >= CSBmin &&
+			candidates[i].SEBT <= SEBTmax && candidates[i].SEBT >= SEBTmin
 		){
 			contaminants.push( dataStore.elements.indexOf(candidates[i].species) );
 		}
@@ -488,19 +484,6 @@ function identifyContaminants(candidates, CSBmin, CSBmax, SEBTmin, SEBTmax){
 
 	return Array.from(new Set(contaminants.sort())) // sorted array of unique Z values.
 
-}
-
-function generateElementLabels(Zs){
-	//given an array of Zs, return an array of corresponding element symbols
-
-	var i, 
-		symbols = [];
-
-	for(i=0; i<Zs.length; i++){
-		symbols.push(dataStore.elements[Zs[i]])
-	} 
-
-	return symbols
 }
 
 function plotCSF(divID, isobarsOnly){

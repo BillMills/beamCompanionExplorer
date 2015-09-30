@@ -134,7 +134,7 @@ function meanCurrent(A, Q, species){
 	for(i=0; i<data.length; i++){
 		thisAQ = data[i][0];
 		thisCurrent = data[i][1];
-		if(thisAQ > magLow && thisAQ < magHigh){
+		if(thisAQ >= magLow && thisAQ <= magHigh){
 			meanCurrent += thisCurrent;
 			nPoints++;
 		}

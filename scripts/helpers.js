@@ -174,6 +174,8 @@ function ensureUniqueList(list){
 	//given a list of companions like those returned by the list* functions in stripingFoil.js,
 	//sort + unique that list.
 
+	var i;
+
 	list.sort(function(a,b){
 		if(a.compZ > b.compZ) return 1;
 		else if(a.compZ < b.compZ) return -1;
@@ -186,6 +188,19 @@ function ensureUniqueList(list){
 		else
 			i++
 	}
+}
+
+function generateElementLabels(Zs){
+	//given an array of Zs, return an array of corresponding element symbols
+
+	var i, 
+		symbols = [];
+
+	for(i=0; i<Zs.length; i++){
+		symbols.push(dataStore.elements[Zs[i]])
+	} 
+
+	return symbols
 }
 
 // ==================
