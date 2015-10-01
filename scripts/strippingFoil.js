@@ -120,7 +120,7 @@ function foil_AQselection(finalSelectedAQ, candidates){
 					'compQ': j,
 					'compAQ': companionAQ.toFixed(3),
 					'compAQprecise': companionAQ,
-					'compCSB_AoverQ': (companionMass-j*dataStore.eMass)/candidates[i].Q
+					'compCSB_AoverQ': (companionMass - candidates[i].Q*dataStore.eMass)/candidates[i].Q
 				})
 			}
 		}
@@ -240,6 +240,7 @@ function determinePlotParameters(chargeState, A, species, stableCompanionData, s
 					'compAQprecise': SEBTwindowCenter,
 					'compCSB_AoverQ': CSBwindowCenter
 				}], 0)
+
 	//add surface ion data
 	if(surfaceIonData.length > 0){
 		massToCharge = appendData(massToCharge, surfaceIonData, series.length-1);
