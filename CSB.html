@@ -65,6 +65,15 @@
     	<script type='text/javascript'>
 	    	layout = new ultralight(['CSBchargeState', 'header', 'footer', 'chargeNav'], auxilaryCSBdata, pageload)
             layout.fetchTemplates();
+
+            //repaint once the resize is finished
+            window.onresize = function(){
+                dataStore.lastResize = new Date();
+                if(dataStore.timeout === false){
+                    dataStore.timeout = true;
+                    window.setTimeout(resizeFinished,100)
+                }
+            }
 	    </script>
     </head>
 </html>

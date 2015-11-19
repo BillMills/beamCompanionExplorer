@@ -215,6 +215,8 @@ function pageload(){
 	var key, isotope;
 
 	for(key in dataStore.plotData){
+
+		document.getElementById('fig'+key).setAttribute('style', 'width: auto; height: auto;');
 		drawAQvsIntensity(key);
 	}
 

@@ -444,7 +444,7 @@ function plotAcceptanceRegion(divID){
 	    }
 	);
 
-	prepImageSave(divID, 'pngAcceptance', 0);
+	//prepImageSave(divID, 'pngAcceptance', 0);
 
 }
 
@@ -559,6 +559,8 @@ function pageload(){
 
 	//make the plots
 	for(key in dataStore.plotData){
+		document.getElementById('fig'+key).setAttribute('style', 'width: auto; height: auto;');
+		document.getElementById('csf'+key).setAttribute('style', 'width: auto; height: auto;');
 		plotAcceptanceRegion(key);
 		plotCSF(key, 'true');
 

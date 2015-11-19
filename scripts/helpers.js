@@ -340,7 +340,18 @@ function findDecayChain(Z, A){
 	return daughters;
 }
 
+/////////////////////////
+// resize management
+/////////////////////////
 
+function resizeFinished(){
+    if (new Date() - dataStore.lastResize < 100) {
+        setTimeout(resizeFinished, 100);
+    } else {
+        dataStore.timeout = false;
+        pageload();
+    } 
+}
 
 
 

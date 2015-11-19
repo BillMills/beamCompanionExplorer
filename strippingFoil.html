@@ -11,7 +11,7 @@
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
         <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
         <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
-    	<link rel="stylesheet" type="text/css" href="css/custom.css" />
+    	<link rel="stylesheet" type="text/css" href="css/custom.css"></link>
 
         <script id="body" type="text/template" route="{{species}}/{{A}}/{{qOriginal}}">
         	{{> header}}
@@ -80,6 +80,16 @@
     	<script type='text/javascript'>
 	    	layout = new ultralight(['postFoilChargeStates', 'header', 'footer', 'chargeNav'], auxilaryFoilData, pageload)
             layout.fetchTemplates();
+
+            //repaint once the resize is finished
+            window.onresize = function(){
+                dataStore.lastResize = new Date();
+                if(dataStore.timeout === false){
+                    dataStore.timeout = true;
+                    window.setTimeout(resizeFinished,100)
+                }
+            }
+                
 	    </script>
     </head>
 </html>
