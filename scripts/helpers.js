@@ -165,8 +165,7 @@ function drawEllipse(context, centerX, centerY, width, height, fill) {
  
  	if(fill)
 		context.fill();
-	else
-		context.stroke();
+	context.stroke();
 	context.closePath();	
 }
 

@@ -416,6 +416,7 @@ function plotAcceptanceRegion(divID){
           		height = yMax - yMin;
 
 	            canvasContext.fillStyle = dataStore.colors[seriesName];
+	            canvasContext.strokeStyle = '#000000';
             	drawEllipse(canvasContext, cx, cy, width, height, true);
             },
             drawHighlightPointCallback: function(g, seriesName, canvasContext, cx, cy, color, pointSize){
@@ -433,6 +434,7 @@ function plotAcceptanceRegion(divID){
 
           		canvasContext.clearRect(0, 0, canvasContext.canvas.width, canvasContext.canvas.height);
 	            canvasContext.fillStyle = "rgba(102, 51, 153, 0.5)";
+	            canvasContext.strokeStyle = '#000000';
             	drawEllipse(canvasContext, cx, cy, width, height, true);
 
             },
