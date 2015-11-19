@@ -437,15 +437,9 @@ function plotAcceptanceRegion(divID){
 	            canvasContext.strokeStyle = '#000000';
             	drawEllipse(canvasContext, cx, cy, width, height, true);
 
-            },
-            zoomCallback: function(minDate, maxDate, yRanges){
-            	prepImageSave(divID, 'pngAcceptance', 0);
             }
 	    }
 	);
-
-	//prepImageSave(divID, 'pngAcceptance', 0);
-
 }
 
 
@@ -541,15 +535,9 @@ function plotCSF(divID, isobarsOnly){
 	    		y:{
 	    			axisLabelWidth: 100,
 	    		}
-	    	},
-            zoomCallback: function(minDate, maxDate, yRanges){
-            	prepImageSave(divID, 'pngCSF', 0);
-            }
+	    	}
 	    }
 	);
-
-	prepImageSave(divID, 'pngCSF', 40);
-
 }
 
 function pageload(){

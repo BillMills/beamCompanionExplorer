@@ -196,14 +196,10 @@ function drawAQvsIntensity(divID){
 	            canvas.font = "16px sans-serif";
 	            canvas.fillStyle = '#000000';
 	            canvas.fillText('Transmitted', xMin, area.y+16);           
-            },
-            zoomCallback: function(minDate, maxDate, yRanges){
-            	prepImageSave(divID, 'pngDump', 0);
             }
 	    }
 	);
 
-	prepImageSave(divID, 'pngDump', 0);
 }
 
 //=================================

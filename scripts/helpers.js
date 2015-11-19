@@ -2,11 +2,12 @@
 // dygraphs auxiliary
 // =========================
 
-function savePlot(id, linkPrefix, imgPrefix){
+function savePlot(id, linkPrefix, imgPrefix, legendHeight){
 	//Somewhat convoluted exercise to make dygraphs saveable as png...
 
-	var link = document.getElementById(linkPrefix+id)
-	link.href = getBase64Image(document.getElementById(imgPrefix+id));
+	var link = document.getElementById(linkPrefix+id);
+	prepImageSave(id, imgPrefix, legendHeight)
+	link.href = document.getElementById(imgPrefix+id).getAttribute('src');
 	link.click();
 
 }
@@ -38,6 +39,7 @@ function prepImageSave(id, imgPrefix, legendHeight){
 	Dygraph.Export.asPNG(dygraph, document.getElementById(imgPrefix+id), options);
 }
 
+//deprecated - unnecessary?
 function getBase64Image(img) {
 
     // Create an empty canvas element
