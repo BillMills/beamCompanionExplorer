@@ -206,7 +206,7 @@ function listDecayChains(beamA, beamZ, qOriginal, chargeState, surfaceIonData){
 	//add on surface ionization daughters:
 	for(i=0; i<surfaceIonData.length; i++){
 		ionDaughters = findDecayChain(surfaceIonData[i].compZ, surfaceIonData[i].compA);
-		candidates = Array.concat(candidates, ionDaughters)
+		candidates = [].concat(candidates, ionDaughters)
 	}
 
 	//filter after the CSB
