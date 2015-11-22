@@ -15,6 +15,7 @@ dataStore.AQfwhm = 0.001 //relative fwhm error on A/Q
 dataStore.ISACIIminAQ = 4.9
 dataStore.ISACIImaxAQ = 7
 dataStore.plotData = {};
+dataStore.chargeStateFractionCSV = {};
 dataStore.plots = {};
 dataStore.colors = {
     'Selected': "rgba(1, 152, 117, 0.5)",//"rgba(34, 49, 63, 0.5)", 

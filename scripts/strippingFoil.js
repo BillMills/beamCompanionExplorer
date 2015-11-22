@@ -495,13 +495,14 @@ function plotCSF(divID, isobarsOnly){
 	labels.unshift('Charge State');
 	var width = document.getElementById('wrap'+divID).offsetWidth;
 	var height = 32/48*width;
+	var csvBlob;
 
 	dataStore.plots['pngCSF'+divID] = new Dygraph(
 	    // containing div
 	    document.getElementById('csf'+divID),
 
 	    // data
-	    chargeStateArray(Zs, dataStore.beamEnergy),
+	    chargeStateArray(Zs, dataStore.beamEnergy, divID),
 
 	    //style
 	    {
@@ -538,6 +539,11 @@ function plotCSF(divID, isobarsOnly){
 	    	}
 	    }
 	);
+
+	//csv got created along with the data; blobify and link:
+	csvBlob = new Blob([dataStore.chargeStateFractionCSV[divID]]);
+	document.getElementById('csf' + divID + 'CSVsave').setAttribute('href', window.URL.createObjectURL(csvBlob));
+
 }
 
 function pageload(){

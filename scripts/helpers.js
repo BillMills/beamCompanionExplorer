@@ -54,15 +54,20 @@ function getBase64Image(img) {
     return canvas.toDataURL();
 }
 
-function chargeStateArray(Zs, beamEnergy){
+function chargeStateArray(Zs, beamEnergy, id){
 	//generate an array of points for Dygraphs to plot describing the charge state fraction for the element in question
+	//also generate a csv of the same, on the dataStore.
 	//Zs is an array of Z values to generate points for.
 
 	var points = [];
 	var thisPoint = [];
 	var qMin = 1000;
 	var qMax = 0;
-	var i, j, qCenter, qWidth;
+	var i, j, qCenter, qWidth, CSF;
+	var csv = '# charge state fractions as a function of Z and q\n';
+	csv += '# column headers == Z\n';
+	csv += '# beam energy = ' + beamEnergy + ' MeV / nucleon\n';
+	csv += 'Charge State';
 
 	//determine a sensible maximum range of data
 	for(i=0; i<Zs.length; i++){
@@ -71,20 +76,34 @@ function chargeStateArray(Zs, beamEnergy){
 
 		qMin = Math.min(qMin, qCenter - 5*qWidth);
 		qMax = Math.max(qMax, qCenter + 5*qWidth);
+
+		//also finish the header row of the csv:
+		csv += ', ' + Zs[i];
 	}
 	qMin = Math.floor(qMin);
-	qMax = Math.ceil(qMax)
+	qMax = Math.ceil(qMax);
+	csv += '\n';
 
 	for(i=qMin; i<qMax; i++){
 		thisPoint = [i];
+		csv += i;
 		for(j=0; j<Zs.length; j++){
-			thisPoint.push(chargeStateFraction(Zs[j], beamEnergy, i))
+			CSF = chargeStateFraction(Zs[j], beamEnergy, i)
+			thisPoint.push(CSF);
+			csv += ', ' + CSF;
 		}
 		points.push(thisPoint);
+		csv += '\n';
 	}
 
+	dataStore.chargeStateFractionCSV[id] = csv;
 	return points;
 
+}
+
+function saveCSV(linkID){
+	console.log(linkID)
+	document.getElementById(linkID).click();
 }
 
 // =========================

@@ -25,6 +25,8 @@
 			<img id='pngCSF{{A}}{{species}}{{q}}' class='shhh'></img>
 			<button class='savePlotButton' onclick="savePlot('{{A}}{{species}}{{q}}', 'saveCSF', 'pngCSF', 40)">Save Charge State Fraction Plot</button>
 			<a id='saveCSF{{A}}{{species}}{{q}}' download='isobaricCSF.png' class='shhh'>Save Plot</a>
+			<button id='csf{{A}}{{species}}{{q}}CSV' onclick='saveCSV("csf{{A}}{{species}}{{q}}CSVsave")' class='saveCSV'>Save Charge State Fraction CSV</button>
+			<a id='csf{{A}}{{species}}{{q}}CSVsave' download='CSF.csv' class='shhh'>Save Charge State Fraction CSV</a>
 
 			<form name="form{{A}}{{species}}{{q}}">
 				<input id='iso{{A}}{{species}}{{q}}' type='radio' name='radio{{A}}{{species}}{{q}}' value='true' checked>
