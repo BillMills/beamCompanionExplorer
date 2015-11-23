@@ -30,6 +30,10 @@ div.figure{
 	padding: 1em 0em 1em 0em;
 }
 
+.hidden {
+	display:none;
+}
+
 /* Header & Footer */
 div.branding{
 	background-color: #367FA9;

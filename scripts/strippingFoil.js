@@ -549,25 +549,53 @@ function plotCSF(divID, isobarsOnly){
 function pageload(){
 	//runs after ultralight is finished setting up the page.
 
-	var i, key, radios;
+	var originalSelection = parseQuery()
 
-	//make the plots
-	for(key in dataStore.plotData){
-		document.getElementById('fig'+key).setAttribute('style', 'width: auto; height: auto;');
-		document.getElementById('csf'+key).setAttribute('style', 'width: auto; height: auto;');
-		plotAcceptanceRegion(key);
-		plotCSF(key, 'true');
+	//populate and reveal the entry for the originally selected charge state
+	populateSection(originalSelection.A + originalSelection.species + originalSelection.qOriginal);
+}
 
-		//set up some event handlers
-		radios = document['form'+key]['radio'+key];
-		for(i = 0; i < radios.length; i++) {
-		    radios[i].onclick = function() {
-		    	var id = this.id.slice(3);
-		    	plotCSF(id, this.value)
-		    };
-		}
+function populateSection(key){
+	//<key>: string; mass,species,charge to populate, like '50K8'
+	//draw the plots, fill in the tables and plug in the buttons for the specified charge state
+
+	var i, radios;
+
+	document.getElementById('section' + key).classList.remove('hidden');
+	document.getElementById('fig'+key).setAttribute('style', 'width: auto; height: auto;');
+	document.getElementById('csf'+key).setAttribute('style', 'width: auto; height: auto;');
+	plotAcceptanceRegion(key);
+	plotCSF(key, 'true');
+
+	//set up some event handlers
+	radios = document['form'+key]['radio'+key];
+	for(i = 0; i < radios.length; i++) {
+	    radios[i].onclick = function() {
+	    	var id = this.id.slice(3);
+	    	plotCSF(id, this.value)
+	    };
 	}
-
-
+	
 	return 0
 }
+
+function gotoChargeState(A, species, q){
+	//draw the requested charge state the first time, and jump down to it.
+
+	//csv hasn't been generated yet, do all calculations for this block
+	if(!dataStore.chargeStateFractionCSV[A + species + q]){
+		console.log('calculating')
+		populateSection(A + species +q);
+	}
+
+	window.location = location.href.replace(location.hash,'') + '#chargeStateOption' + q;	
+}
+
+
+
+
+
+
+
+
+
