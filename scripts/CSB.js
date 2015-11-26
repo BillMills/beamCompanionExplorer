@@ -216,21 +216,18 @@ function pageload(){
 		document.getElementById('fig'+key).setAttribute('style', 'width: auto; height: auto;');
 		drawAQvsIntensity(key);
 
-		min = Math.min(min, dataStore.plotData[key].data[0][0]);
-		max = Math.max(max, dataStore.plotData[key].data[dataStore.plotData[key].data.length-1][0]);
+		min = Math.min(min, dataStore.plotData[key].yMin);
+		max = Math.max(max, dataStore.plotData[key].yMax);
 	}
 
-	//reloop to match all plot scales
+	//reloop to match all plot y scales
 	for(key in dataStore.plotData){
 		dataStore.plots['pngDump'+key].updateOptions(
 				{
-					'dateWindow': [min, max]
+					'axes': {'y':{valueRange:[min, max]}}
 				}
 			)
 	}
-
-
-	console.log(min, max)
 
 	return 0
 }
