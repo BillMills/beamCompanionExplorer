@@ -208,13 +208,29 @@ function drawAQvsIntensity(divID){
 
 function pageload(){
 	//runs after ultralight is finished setting up the page.
-	var key, isotope;
+	var key, isotope,
+		min=1000, max=0;
 
 	for(key in dataStore.plotData){
 
 		document.getElementById('fig'+key).setAttribute('style', 'width: auto; height: auto;');
 		drawAQvsIntensity(key);
+
+		min = Math.min(min, dataStore.plotData[key].data[0][0]);
+		max = Math.max(max, dataStore.plotData[key].data[dataStore.plotData[key].data.length-1][0]);
 	}
+
+	//reloop to match all plot scales
+	for(key in dataStore.plotData){
+		dataStore.plots['pngDump'+key].updateOptions(
+				{
+					'dateWindow': [min, max]
+				}
+			)
+	}
+
+
+	console.log(min, max)
 
 	return 0
 }
