@@ -1,3 +1,11 @@
+Latest Release: [![DOI](https://zenodo.org/badge/doi/10.5281/zenodo.34279.svg)](http://dx.doi.org/10.5281/zenodo.34279)
+
+Release History:
+
+version | DOI
+--------|------
+1.0     | 10.5281/zenodo.34279
+
 ## Beam Companion Explorer 
 A web app for exploring and visualizing beam companions picked up during charge state boosting in radioactive ion beam experiments.
 
@@ -8,6 +16,24 @@ A web app for exploring and visualizing beam companions picked up during charge 
 This project runs 100% client side; simply open `companionExplorer.html` in the latest Firefox or Chrome locally, or serve from any static page server.
 
 This project uses [Dygraphs](http://dygraphs.com/) for plotting, [Twitter Bootstrap](http://getbootstrap.com/) for layout, and [Ultralight](https://github.com/BillMills/ultralight) and [mustache.js](https://github.com/janl/mustache.js/) for client-side templating and URL management.
+
+## Programmatic Logic
+
+ - All pages in the Beam Companion Explorer generate static plots and isotope lists from lookup tables found in `scripts/datastore.js`; essentially all logic is complete after the chain of calls triggered after pageload.
+ - As with all Ultralight projects, pageload proceeds by first loading templates, then generating data to pass to the templates via `auxiliaryCSBdata()` and `auxiliaryFoilData()`, then finally triggering logic via `pageload()`. Any additional logic should fit into the chain of functions called by `pageload()`.
+ - As with most GRIFFIN apps, a global `dataStore` object exists to accommodate global variables.
+
+### URL Encoding
+
+The Beam Companion Explorer encodes user selections in the URL query string, so results can be bookmarked and shared more easily. The query string parameters are as follows:
+
+ - **CSB.html and strippingFoil.html**
+   - `species`: the chemical symbol corresponding to the beam species of interest.
+   - `A`: the atomic mass of the beam species of interest.
+ - **strippingFoil.html only**
+   - `qOriginal`: the charge state selected after the first charge breeding step.
+
+Note that by filling out this query string by hand, it's possible to jump directly to the results of interest, without clicking through earlier pages.
 
 ## Contributing
 
