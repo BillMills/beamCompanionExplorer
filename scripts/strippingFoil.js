@@ -565,7 +565,7 @@ function populateSection(key){
 	document.getElementById('fig'+key).setAttribute('style', 'width: auto; height: auto;');
 	document.getElementById('csf'+key).setAttribute('style', 'width: auto; height: auto;');
 	plotAcceptanceRegion(key);
-	plotCSF(key, 'true');
+	plotCSF(key, 'false');
 
 	//set up some event handlers
 	radios = document['form'+key]['radio'+key];

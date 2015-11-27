@@ -100,6 +100,15 @@ div.beamSelect{
 	width: 300px;
 }
 
+/*dygraphs*/
+
+.dygraph-legend{
+    left: auto !important;
+    right: 20px !important;
+    display: inline-block;
+    width: auto !important;
+}
+
 /* odds & ends */
 .shhh{
 	display: none;
