@@ -1,36 +1,42 @@
 import json
 
-# handy variables
-lineLength = 124
-headerLength = 39
-massTable = []
-fid = open("mass.mas12", "r")
+def generateMassTable():
+    '''
+    generate a mass table for the beam companion explorer.
+    writes and returns the mass table, a list of dicts keyed as [Z]['A'].
+    '''
 
-# fast forward through header
-for i in range(headerLength):
-    fid.readline()
+    # handy variables
+    lineLength = 124
+    headerLength = 39
+    massTable = []
+    fid = open("mass.mas12", "r")
 
-# unpack each line
-while True:
+    # fast forward through header
+    for i in range(headerLength):
+        fid.readline()
 
-    #decode fixed-width columns
-    record = fid.readline()
-    if record == '':
-        break
-    N = int(record[6:9])
-    Z = int(record[11:14])
-    A = N + Z
-    mass = record[96:110].replace(' ', '')
-    mass = mass.replace('#', '.')
-    mass = float(mass)/1000000.
+    # unpack each line
+    while True:
 
-    #pack N, Z, mass into dictionary for beam companion explorer:
-    while len(massTable)-1 < Z:
-        massTable.append({})
+        #decode fixed-width columns
+        record = fid.readline()
+        if record == '':
+            break
+        N = int(record[6:9])
+        Z = int(record[11:14])
+        A = N + Z
+        mass = record[96:110].replace(' ', '')
+        mass = mass.replace('#', '.')
+        mass = float(mass)/1000000.
 
-    massTable[Z][str(A)] = mass
+        #pack N, Z, mass into dictionary for beam companion explorer:
+        while len(massTable)-1 < Z:
+            massTable.append({})
 
-outputTable = open('mass.dict', 'w')
-outputTable.write(json.dumps(massTable))
+        massTable[Z][str(A)] = mass
 
-    
+    outputTable = open('mass.dict', 'w')
+    outputTable.write(json.dumps(massTable))
+
+    return massTable
