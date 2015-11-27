@@ -584,7 +584,6 @@ function gotoChargeState(A, species, q){
 
 	//csv hasn't been generated yet, do all calculations for this block
 	if(!dataStore.chargeStateFractionCSV[A + species + q]){
-		console.log('calculating')
 		populateSection(A + species +q);
 	}
 

@@ -202,6 +202,12 @@ function drawAQvsIntensity(divID){
 
 }
 
+function gotoChargeState(A, species, q){
+	//jump to requested charge state
+
+	window.location = location.href.replace(location.hash,'') + '#chargeStateOption' + q;	
+}
+
 //=================================
 // ultralight pageload callback
 //=================================
