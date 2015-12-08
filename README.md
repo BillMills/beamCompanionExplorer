@@ -1,10 +1,9 @@
-Latest Release: [![DOI](https://zenodo.org/badge/doi/10.5281/zenodo.34279.svg)](http://dx.doi.org/10.5281/zenodo.34279)
-
 Release History:
 
 version | DOI
 --------|------
-1.0     | 10.5281/zenodo.34279
+1.0.1   | [![DOI](https://zenodo.org/badge/3877/GRIFFINCollaboration/beamCompanionExplorer.svg)](https://zenodo.org/badge/latestdoi/3877/GRIFFINCollaboration/beamCompanionExplorer)
+1.0     | [![DOI](https://zenodo.org/badge/doi/10.5281/zenodo.34279.svg)](http://dx.doi.org/10.5281/zenodo.34279)
 
 ## Beam Companion Explorer 
 A web app for exploring and visualizing beam companions picked up during charge state boosting in radioactive ion beam experiments.
