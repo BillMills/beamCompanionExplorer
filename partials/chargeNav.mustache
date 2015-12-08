@@ -1,6 +1,8 @@
 <div class='content'>
     <h2 class='navHeader'>Available Charge States:</h2>
-    <h2 class='small'>Click to generate plots & companion lists.</h2>
+    {{#isStrippingFoil}}
+        <h2 class='small'>Click to generate plots & companion lists.</h2>
+    {{/isStrippingFoil}}
     <div class="btn-group" role="group">
         {{#chargeStates}}
             <button type="button" class="btn btn-default" onclick='gotoChargeState("{{A}}", "{{species}}", "{{q}}")'>

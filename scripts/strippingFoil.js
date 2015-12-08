@@ -32,7 +32,8 @@ function auxilaryFoilData(data){
 		'RFQprebuncherResolution': dataStore.RFQprebuncherResolution,
 		'DSBprebuncherResolution': dataStore.DSBprebuncherResolution,
 		'beamEnergy': dataStore.beamEnergy,
-		'energyLoss': dataStore.energyLoss
+		'energyLoss': dataStore.energyLoss,
+		'isStrippingFoil': true
 	}
 }
 
