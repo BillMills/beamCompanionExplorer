@@ -16,7 +16,10 @@ function auxilaryCSBdata(data){
 		chargeStates[i]['csbCompanions'] = companions[0];
 		chargeStates[i]['otherCompanions'] = companions[1];
 		determineIntensityParameters(beamMass, chargeStates[i].q, A, data.species);
-		chargeStates[i]['meanCurrent'] = meanCurrent(A, chargeStates[i].q, data.species).toPrecision(3);
+		chargeStates[i]['meanCurrent'] = { 
+			'A': meanCurrent(A, chargeStates[i].q, data.species).toPrecision(3),
+			'pps': (meanCurrent(A, chargeStates[i].q, data.species) * 6.241e18 / chargeStates[i].q).toPrecision(3)
+		}
 	}
 
 	return {
