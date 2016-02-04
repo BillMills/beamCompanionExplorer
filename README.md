@@ -2,6 +2,7 @@ Release History:
 
 version | DOI
 --------|------
+1.1.0   | [![DOI](https://zenodo.org/badge/3877/GRIFFINCollaboration/beamCompanionExplorer.svg)](https://zenodo.org/badge/latestdoi/3877/GRIFFINCollaboration/beamCompanionExplorer)
 1.0.1   | [![DOI](https://zenodo.org/badge/3877/GRIFFINCollaboration/beamCompanionExplorer.svg)](https://zenodo.org/badge/latestdoi/3877/GRIFFINCollaboration/beamCompanionExplorer)
 1.0     | [![DOI](https://zenodo.org/badge/doi/10.5281/zenodo.34279.svg)](http://dx.doi.org/10.5281/zenodo.34279)
 
